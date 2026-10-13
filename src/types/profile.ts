@@ -1,6 +1,6 @@
 // const ensures no future reassignment, meaning binding cannot be modified
 // as const ensures the array is readonly, meaning no modifications can be made to the array itself
-export const STATUSES = [
+export const STAGES = [
     "Onboarded",
     "Verified",
     "Profile Shared",
@@ -9,9 +9,9 @@ export const STATUSES = [
     "Closed",
 ] as const;
 
-// typeof elements at different indices of STATUSES
-// effectively Status = "Onboarded" | "Verified" | "Profile Shared" | "Meeting Scheduled" | "Feedback" | "Closed" 
-export type Status = (typeof STATUSES)[number];
+// typeof elements at different indices of STAGES
+// effectively Stage = "Onboarded" | "Verified" | "Profile Shared" | "Meeting Scheduled" | "Feedback" | "Closed" 
+export type Stage = (typeof STAGES)[number];
 
 export type YesNoMaybe = "Yes" | "No" | "Maybe";
 
@@ -23,8 +23,8 @@ export interface Customer {
     dob: string;
     city: string;
     country: string;
-    marital: "Never Married" | "Divorced" | "Widowed";
-    status: Status;
+    maritalStatus: "Never Married" | "Divorced" | "Widowed";
+    stage: Stage;
     email: string;
     phone: string;
     height: number; // cm
@@ -43,3 +43,7 @@ export interface Customer {
     diet: string;
     family: string;
 }
+
+// A Customer plus its computed age. The server computes age and passes this
+// shape to the client, so the browser never needs the current date.
+export type CustomerRow = Customer & { age: number };

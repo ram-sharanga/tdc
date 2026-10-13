@@ -3,7 +3,7 @@ import type { Customer } from "@/types/profile";
 export const customers: Customer[] = [
     {
         id: "c1", first: "Priya", last: "Nair", gender: "Female", dob: "1996-03-14",
-        city: "Chennai", country: "India", marital: "Never Married", status: "Verified",
+        city: "Chennai", country: "India", maritalStatus: "Never Married", stage: "Verified",
         email: "priya.nair@example.com", phone: "+91 98400 11223", height: 162,
         college: "Anna University", degree: "B.E. Computer Science", income: 18,
         company: "Zoho", designation: "Software Engineer", languages: "Tamil, English, Malayalam",
@@ -12,7 +12,7 @@ export const customers: Customer[] = [
     },
     {
         id: "c2", first: "Rohit", last: "Kumar", gender: "Male", dob: "1993-08-02",
-        city: "Pune", country: "India", marital: "Divorced", status: "Profile Shared",
+        city: "Pune", country: "India", maritalStatus: "Divorced", stage: "Profile Shared",
         email: "rohit.k@example.com", phone: "+91 98200 44556", height: 176,
         college: "VIT Vellore", degree: "B.Tech Mechanical", income: 32,
         company: "Tata Motors", designation: "Senior Engineer", languages: "Hindi, English, Marathi",
@@ -21,7 +21,7 @@ export const customers: Customer[] = [
     },
     {
         id: "c3", first: "Ananya", last: "Iyer", gender: "Female", dob: "1994-11-21",
-        city: "Bengaluru", country: "India", marital: "Never Married", status: "Meeting Scheduled",
+        city: "Bengaluru", country: "India", maritalStatus: "Never Married", stage: "Meeting Scheduled",
         email: "ananya.i@example.com", phone: "+91 99000 77889", height: 165,
         college: "BITS Pilani", degree: "MBA", income: 30,
         company: "Deloitte", designation: "Consultant", languages: "Tamil, English, Kannada",
@@ -30,7 +30,7 @@ export const customers: Customer[] = [
     },
     {
         id: "c4", first: "Imran", last: "Sheikh", gender: "Male", dob: "1991-05-09",
-        city: "Hyderabad", country: "India", marital: "Never Married", status: "Onboarded",
+        city: "Hyderabad", country: "India", maritalStatus: "Never Married", stage: "Onboarded",
         email: "imran.s@example.com", phone: "+91 90300 12345", height: 174,
         college: "JNTU Hyderabad", degree: "B.Tech Electronics", income: 26,
         company: "Infosys", designation: "Tech Lead", languages: "Urdu, English, Telugu",
@@ -39,7 +39,7 @@ export const customers: Customer[] = [
     },
     {
         id: "c5", first: "Meera", last: "Pillai", gender: "Female", dob: "1992-01-30",
-        city: "Kochi", country: "India", marital: "Divorced", status: "Feedback",
+        city: "Kochi", country: "India", maritalStatus: "Divorced", stage: "Feedback",
         email: "meera.p@example.com", phone: "+91 94470 66778", height: 158,
         college: "NIT Calicut", degree: "B.Tech Civil", income: 22,
         company: "L&T", designation: "Project Manager", languages: "Malayalam, English",

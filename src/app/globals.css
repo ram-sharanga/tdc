@@ -1,39 +1,75 @@
 @import "tailwindcss";
 
+/* ============ 1. Design tokens ============ */
 :root {
   --bg: #F6F2F3;
+  /* page background */
   --card: #fff;
+  /* card surface */
   --line: #E7DEE1;
+  /* borders and dividers */
   --ink: #2A1E2B;
+  /* main text */
   --mute: #75697A;
+  /* secondary text */
   --berry: #A93A63;
+  /* primary action */
   --berry-d: #8C2D50;
+  /* primary hover / dark text on tint */
   --tint: #F4E1E8;
+  /* soft berry background */
+  --hover: #FAEDF1;
+  /* row hover: clearly pink, still light */
   --gold: #B8892F;
+  /* verified badge */
   --ok: #2F7D5B;
   --warn: #B5731A;
   --r: 14px;
+  /* card radius */
+  /* These two read the variables that next/font defines in layout.tsx */
   --head: var(--font-fraunces), Georgia, serif;
   --body: var(--font-inter), system-ui, sans-serif;
 }
 
-* {
+/* ============ 2. Base ============ */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
-  margin: 0
+  margin: 0;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* stops iOS inflating text after rotation */
 body {
   background: var(--bg);
   color: var(--ink);
-  font: 15px/1.5 var(--body)
+  font: 15px/1.5 var(--body);
+  -webkit-font-smoothing: antialiased;
 }
 
+/* Tailwind's preflight resets heading sizes to inherit, so set them explicitly. */
 h1,
 h2,
 h3 {
   font-family: var(--head);
   font-weight: 600;
-  line-height: 1.2
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: clamp(26px, 4vw, 34px);
+}
+
+h2 {
+  font-size: 24px;
+}
+
+h3 {
+  font-size: 18px;
 }
 
 button,
@@ -41,96 +77,145 @@ input,
 select,
 textarea {
   font: inherit;
-  color: inherit
+  color: inherit;
 }
 
 :focus-visible {
   outline: 3px solid var(--berry);
-  outline-offset: 2px
+  outline-offset: 2px;
 }
 
 [hidden] {
-  display: none !important
+  display: none !important;
 }
 
+.muted {
+  color: var(--mute);
+}
+
+/* Form controls. 16px font prevents iOS Safari zooming the page on focus. */
+input,
+select,
+textarea {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: #fff;
+  width: 100%;
+  font-size: 16px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* ============ 3. Buttons  ============ */
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   border: 1px solid var(--line);
   background: #fff;
   padding: 10px 16px;
   border-radius: 10px;
   cursor: pointer;
-  min-height: 44px
+  min-height: 44px;
+  /* 44px = comfortable tap target */
+  text-decoration: none;
+  color: inherit;
 }
 
 .btn:hover {
-  background: #faf6f7
+  background: #faf6f7;
 }
 
 .btn.primary {
   background: var(--berry);
   border-color: var(--berry);
   color: #fff;
-  font-weight: 600
+  font-weight: 600;
 }
 
 .btn.primary:hover {
-  background: var(--berry-d)
+  background: var(--berry-d);
 }
 
 .btn[disabled] {
   opacity: .6;
-  cursor: default
+  cursor: default;
 }
 
-.muted {
-  color: var(--mute)
-}
-
-/* ---- Status pills ---- */
+/* ============ 4. Stage pills and tiers ============ */
 .pill {
   display: inline-block;
   padding: 3px 10px;
   border-radius: 99px;
   font-size: 13px;
   font-weight: 500;
-  white-space: nowrap
+  white-space: nowrap;
 }
 
 .s-Onboarded {
   background: #ECE8EC;
-  color: #5b505f
+  color: #5b505f;
 }
 
 .s-Verified {
   background: #DDEBF7;
-  color: #255a85
+  color: #255a85;
 }
 
 .s-Shared {
   background: var(--tint);
-  color: var(--berry-d)
+  color: var(--berry-d);
 }
 
 .s-Meeting {
   background: #FBEBCF;
-  color: #8a5a12
+  color: #8a5a12;
 }
 
 .s-Feedback {
   background: #E9E1F5;
-  color: #5a3d8a
+  color: #5a3d8a;
 }
 
 .s-Closed {
   background: #DCEFE5;
-  color: #256046
+  color: #256046;
 }
 
-/* ---- Login ---- */
-#login {
-  min-height: 100vh;
+.tier {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+.t-High {
+  background: #DCEFE5;
+  color: var(--ok);
+}
+
+.t-Good {
+  background: #FBEBCF;
+  color: var(--warn);
+}
+
+.t-Stretch {
+  background: #ECE8EC;
+  color: var(--mute);
+}
+
+/* ============ 5. Login ============ */
+.login {
+  min-height: 100dvh;
   display: grid;
-  grid-template-columns: 1.1fr 1fr
+  grid-template-columns: 1.1fr 1fr;
 }
 
 .hero {
@@ -139,59 +224,42 @@ textarea {
   padding: 56px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between
+  justify-content: space-between;
 }
 
 .hero h1 {
   font-size: clamp(34px, 4.6vw, 56px);
-  max-width: 11ch
+  max-width: 11ch;
 }
 
 .hero p {
   max-width: 34ch;
-  opacity: .85
+  opacity: .85;
 }
 
 .logo {
   font-family: var(--head);
-  font-size: 22px
+  font-size: 22px;
 }
 
 .login-box {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px
+  padding: 32px 20px;
 }
 
 .login-box form {
   width: 100%;
   max-width: 360px;
   display: grid;
-  gap: 14px
-}
-
-label {
-  display: grid;
-  gap: 6px;
-  font-weight: 500;
-  font-size: 14px
-}
-
-input,
-select,
-textarea {
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 11px 12px;
-  background: #fff;
-  width: 100%
+  gap: 14px;
 }
 
 .err {
   color: #b3261e;
   font-size: 14px;
-  min-height: 20px
+  min-height: 20px;
 }
 
 .demo {
@@ -199,73 +267,77 @@ textarea {
   background: #fff;
   border: 1px dashed var(--line);
   padding: 10px 12px;
-  border-radius: 10px
+  border-radius: 10px;
 }
 
-/* ---- App shell ---- */
+/* ============ 6. App shell ============ */
 .top {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 14px 28px;
+  padding-top: max(14px, env(safe-area-inset-top));
+  /* clears the notch */
   background: #fff;
   border-bottom: 1px solid var(--line);
   position: sticky;
   top: 0;
-  z-index: 5
+  z-index: 5;
 }
 
 .wrap {
   max-width: 1040px;
   margin: 0 auto;
-  padding: 28px 20px 80px
+  padding: 28px 20px 80px;
+  padding-bottom: max(80px, env(safe-area-inset-bottom));
 }
 
+/* ============ 7. Dashboard ============ */
 .stats {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin: 10px 0 22px
+  margin: 10px 0 22px;
 }
 
 .tools {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 16px
+  margin-bottom: 16px;
 }
 
 .tools input {
-  max-width: 300px
+  max-width: 300px;
 }
 
 .chips {
   display: flex;
   gap: 6px;
-  flex-wrap: wrap
+  flex-wrap: wrap;
 }
 
 .chip {
   border: 1px solid var(--line);
   background: #fff;
   border-radius: 99px;
-  padding: 6px 14px;
+  padding: 8px 14px;
   cursor: pointer;
-  font-size: 14px
+  font-size: 14px;
+  min-height: 40px;
 }
 
-.chip[aria-pressed=true] {
+.chip[aria-pressed="true"] {
   background: var(--berry);
   border-color: var(--berry);
-  color: #fff
+  color: #fff;
 }
 
-/* ---- Customer table ---- */
 .list {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--r);
-  overflow: hidden
+  overflow: hidden;
 }
 
 .row {
@@ -278,18 +350,24 @@ textarea {
   width: 100%;
   text-align: left;
   background: none;
-  border-left: 0;
-  border-right: 0;
-  border-top: 0;
-  cursor: pointer
+  cursor: pointer;
 }
 
 .row:last-child {
-  border-bottom: 0
+  border-bottom: 0;
 }
 
+/* Rows are <Link> (an <a>) in Next. Both selectors cover <a> and <button>. */
+a.row,
+button.row {
+  text-decoration: none;
+  color: inherit;
+  transition: background .12s;
+}
+
+a.row:hover,
 button.row:hover {
-  background: #fcf8f9
+  background: var(--hover);
 }
 
 .row.head {
@@ -298,14 +376,18 @@ button.row:hover {
   color: var(--mute);
   padding-top: 10px;
   padding-bottom: 10px;
-  background: #faf6f7
+  background: #faf6f7;
+}
+
+.row.head:hover {
+  background: #faf6f7;
 }
 
 .who {
   display: flex;
   gap: 12px;
   align-items: center;
-  font-weight: 500
+  font-weight: 500;
 }
 
 .av {
@@ -318,22 +400,24 @@ button.row:hover {
   place-items: center;
   font-weight: 600;
   font-size: 14px;
-  flex: none
+  flex: none;
 }
 
 .empty {
   padding: 40px;
-  text-align: center
+  text-align: center;
 }
 
-/* ---- Detail ---- */
+/* ============ 8. Customer detail ============ */
 .back {
   background: none;
   border: 0;
   color: var(--berry-d);
   cursor: pointer;
-  padding: 6px 0;
-  margin-bottom: 10px
+  padding: 10px 0;
+  margin-bottom: 4px;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .dhead {
@@ -342,26 +426,25 @@ button.row:hover {
   align-items: center;
   flex-wrap: wrap;
   justify-content: space-between;
-  margin-bottom: 18px
+  margin-bottom: 18px;
 }
 
-.dhead .who .av {
+.dhead .av {
   width: 56px;
   height: 56px;
-  font-size: 20px
+  font-size: 20px;
 }
 
 .badge {
   color: var(--gold);
   font-size: 13px;
-  font-weight: 500
+  font-weight: 500;
 }
 
 .stepper {
   display: flex;
-  gap: 0;
   margin: 6px 0 22px;
-  overflow-x: auto
+  overflow-x: auto;
 }
 
 .step {
@@ -370,82 +453,83 @@ button.row:hover {
   font-size: 13px;
   color: var(--mute);
   padding-top: 14px;
-  position: relative;
-  border-top: 3px solid var(--line)
+  border-top: 3px solid var(--line);
 }
 
 .step.done {
   border-color: var(--berry);
-  color: var(--ink)
+  color: var(--ink);
 }
 
 .step.now {
   border-color: var(--berry);
   color: var(--berry-d);
-  font-weight: 600
+  font-weight: 600;
 }
 
 .tabs {
   display: flex;
   gap: 4px;
   border-bottom: 1px solid var(--line);
-  margin-bottom: 20px
+  margin-bottom: 20px;
+  overflow-x: auto;
 }
 
 .tab {
   background: none;
   border: 0;
-  padding: 10px 16px;
+  padding: 12px 16px;
   cursor: pointer;
   color: var(--mute);
   border-bottom: 3px solid transparent;
-  margin-bottom: -1px
+  margin-bottom: -1px;
+  white-space: nowrap;
 }
 
-.tab[aria-selected=true] {
+.tab[aria-selected="true"] {
   color: var(--ink);
   border-color: var(--berry);
-  font-weight: 600
+  font-weight: 600;
 }
 
 .groups {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px
+  gap: 16px;
 }
 
 .group {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--r);
-  padding: 20px
+  padding: 20px;
 }
 
 .group:nth-child(odd) {
-  border-top: 3px solid var(--tint)
+  border-top: 3px solid var(--tint);
 }
 
 .group h3 {
-  font-size: 18px;
-  margin-bottom: 12px
+  margin-bottom: 12px;
 }
 
 dl {
   display: grid;
   grid-template-columns: 130px 1fr;
   gap: 8px 12px;
-  font-size: 14px
+  font-size: 14px;
 }
 
 dt {
-  color: var(--mute)
+  color: var(--mute);
 }
 
 dd {
-  margin: 0
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
-/* ---- Matches ---- */
+/* ============ 9. Matches ============ */
 .match {
   background: var(--card);
   border: 1px solid var(--line);
@@ -454,7 +538,7 @@ dd {
   margin-bottom: 16px;
   display: grid;
   grid-template-columns: 84px 1fr;
-  gap: 20px
+  gap: 20px;
 }
 
 .ring {
@@ -465,7 +549,7 @@ dd {
   display: grid;
   place-items: center;
   position: relative;
-  background: conic-gradient(var(--berry) calc(var(--p)*1%), #eadde2 0)
+  background: conic-gradient(var(--berry) calc(var(--p) * 1%), #eadde2 0);
 }
 
 .ring::before {
@@ -473,13 +557,13 @@ dd {
   position: absolute;
   inset: 8px;
   border-radius: 50%;
-  background: #fff
+  background: #fff;
 }
 
 .ring b {
   position: relative;
   font-family: var(--head);
-  font-size: 26px
+  font-size: 26px;
 }
 
 .mtop {
@@ -487,33 +571,11 @@ dd {
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-  align-items: baseline
+  align-items: baseline;
 }
 
 .mtop h3 {
-  font-size: 20px
-}
-
-.tier {
-  font-size: 13px;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 99px
-}
-
-.t-High {
-  background: #DCEFE5;
-  color: var(--ok)
-}
-
-.t-Good {
-  background: #FBEBCF;
-  color: var(--warn)
-}
-
-.t-Stretch {
-  background: #ECE8EC;
-  color: var(--mute)
+  font-size: 20px;
 }
 
 .facts {
@@ -522,38 +584,38 @@ dd {
   flex-wrap: wrap;
   margin: 8px 0;
   font-size: 14px;
-  color: var(--mute)
+  color: var(--mute);
 }
 
 .fit {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin: 10px 0
+  margin: 10px 0;
 }
 
 .fit span {
   font-size: 13px;
   padding: 3px 10px;
   border-radius: 8px;
-  border: 1px solid var(--line)
+  border: 1px solid var(--line);
 }
 
 .fit .y {
   background: #EAF5EF;
   border-color: #cfe6da;
-  color: var(--ok)
+  color: var(--ok);
 }
 
 .fit .m {
   background: #FDF3E1;
   border-color: #f0dcb4;
-  color: var(--warn)
+  color: var(--warn);
 }
 
 .fit .n {
   background: #f3eff1;
-  color: var(--mute)
+  color: var(--mute);
 }
 
 .why {
@@ -561,32 +623,32 @@ dd {
   border-radius: 10px;
   padding: 12px 14px;
   font-size: 14px;
-  margin: 10px 0
+  margin: 10px 0;
 }
 
 .why b {
-  color: var(--berry-d)
+  color: var(--berry-d);
 }
 
 .acts {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-top: 12px
+  margin-top: 12px;
 }
 
 .bars {
   display: grid;
   gap: 8px;
   margin-top: 12px;
-  font-size: 13px
+  font-size: 13px;
 }
 
 .bar {
   display: grid;
   grid-template-columns: 110px 1fr 34px;
   gap: 10px;
-  align-items: center
+  align-items: center;
 }
 
 .bar i {
@@ -594,22 +656,22 @@ dd {
   height: 8px;
   border-radius: 99px;
   background: #eadde2;
-  overflow: hidden
+  overflow: hidden;
 }
 
-.bar i u {
+.bar u {
   display: block;
   height: 100%;
   background: var(--berry);
-  text-decoration: none
+  text-decoration: none;
 }
 
-/* ---- Notes ---- */
+/* ============ 10. Notes ============ */
 .notebox {
   display: grid;
   gap: 10px;
   margin-bottom: 20px;
-  max-width: 640px
+  max-width: 640px;
 }
 
 .note {
@@ -619,14 +681,14 @@ dd {
   border-radius: 10px;
   padding: 12px 16px;
   margin-bottom: 10px;
-  max-width: 640px
+  max-width: 640px;
 }
 
 .note small {
-  color: var(--mute)
+  color: var(--mute);
 }
 
-/* ---- Modal + toast ---- */
+/* ============ 11. Modal and toast ============ */
 .scrim {
   position: fixed;
   inset: 0;
@@ -634,7 +696,7 @@ dd {
   display: grid;
   place-items: center;
   padding: 16px;
-  z-index: 20
+  z-index: 20;
 }
 
 .modal {
@@ -642,28 +704,28 @@ dd {
   border-radius: 18px;
   max-width: 560px;
   width: 100%;
-  max-height: 92vh;
+  max-height: 92dvh;
   overflow: auto;
   padding: 26px;
   display: grid;
-  gap: 14px
+  gap: 14px;
 }
 
 .sum {
   background: var(--bg);
   border-radius: 10px;
   padding: 14px;
-  font-size: 14px
+  font-size: 14px;
 }
 
 .sum strong {
   font-family: var(--head);
-  font-size: 17px
+  font-size: 17px;
 }
 
-#toast {
+.toast {
   position: fixed;
-  bottom: 24px;
+  bottom: max(24px, env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   background: var(--ink);
@@ -671,47 +733,131 @@ dd {
   padding: 12px 20px;
   border-radius: 12px;
   z-index: 30;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .25)
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+  max-width: calc(100vw - 32px);
 }
 
-@media(max-width:760px) {
-  #login {
-    grid-template-columns: 1fr
+/* ============ 12. Mobile (760px and below) ============ */
+@media (max-width: 760px) {
+  .login {
+    grid-template-columns: 1fr;
   }
 
   .hero {
-    display: none
+    display: none;
   }
 
-  .row {
-    grid-template-columns: 1fr auto;
-    gap: 4px 12px
+  .top {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .wrap {
+    padding: 20px 16px 80px;
+  }
+
+  .tools input {
+    max-width: none;
+  }
+
+  .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    width: 100%;
+    padding-bottom: 4px;
+  }
+
+  .chip {
+    white-space: nowrap;
   }
 
   .row.head {
-    display: none
+    display: none;
   }
 
-  .row .c-age,
-  .row .c-city,
-  .row .c-ms {
+  .row {
+    grid-template-columns: auto auto 1fr;
+    grid-template-areas: "who who status" "age city ms";
+    gap: 4px 12px;
+    padding: 14px 16px;
+  }
+
+  .row> :nth-child(1) {
+    grid-area: who;
+  }
+
+  .row> :nth-child(2) {
+    grid-area: age;
+  }
+
+  .row> :nth-child(3) {
+    grid-area: city;
+  }
+
+  .row> :nth-child(4) {
+    grid-area: ms;
+  }
+
+  .row> :nth-child(5) {
+    grid-area: status;
+    justify-self: end;
+  }
+
+  .row> :nth-child(n+2):nth-child(-n+4) {
     font-size: 13px;
     color: var(--mute);
-    display: inline
+  }
+
+  .dhead {
+    align-items: stretch;
+  }
+
+  .dhead label {
+    width: 100%;
+    min-width: 0 !important;
   }
 
   .groups {
-    grid-template-columns: 1fr
+    grid-template-columns: 1fr;
+  }
+
+  dl {
+    grid-template-columns: 110px 1fr;
   }
 
   .match {
-    grid-template-columns: 1fr
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .ring {
+    width: 72px;
+    height: 72px;
+  }
+
+  .ring b {
+    font-size: 22px;
+  }
+
+  .acts .btn {
+    flex: 1;
+  }
+
+  .scrim {
+    align-items: end;
+    padding: 0;
+  }
+
+  .modal {
+    border-radius: 18px 18px 0 0;
+    max-height: 94dvh;
+    padding: 22px 18px calc(22px + env(safe-area-inset-bottom));
   }
 }
 
-@media(prefers-reduced-motion:reduce) {
+@media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
-    animation: none !important
+    animation: none !important;
   }
 }
