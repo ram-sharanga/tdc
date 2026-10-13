@@ -16,7 +16,7 @@ async function DashboardData() {
 export default function DashboardPage() {
     return (
         <main className="wrap">
-            <h1>Good morning, Asha</h1>
+            <h1>Crew Captain, Asha</h1>
             <Suspense fallback={<p className="muted">Loading customers...</p>}>
                 <DashboardData />
             </Suspense>

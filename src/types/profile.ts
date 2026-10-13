@@ -44,6 +44,10 @@ export interface Customer {
     family: string;
 }
 
-// A Customer plus its computed age. The server computes age and passes this
-// shape to the client, so the browser never needs the current date.
 export type CustomerRow = Customer & { age: number };
+
+export interface Note {
+  id: string;
+  at: string;
+  text: string;
+}

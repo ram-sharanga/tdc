@@ -8,15 +8,18 @@ export default function Home() {
   return (
     <main className="wrap">
       <h1>Customers</h1>
-      <ul>{customers.map((c) => (
-        <li key={c.id}>
-          {c.first} {c.last},
-          {" "}
-          <Suspense fallback={<span>...</span>}>
-            <CustomerAge dob={c.dob} />
-          </Suspense>,
-          {" "}
-          {c.city}</li>))}
+      <ul>
+        {customers.map((c) => (
+          <li key={c.id}>
+            {c.first} {c.last},
+            {" "}
+            <Suspense fallback={<span>...</span>}>
+              <CustomerAge dob={c.dob} />
+            </Suspense>,
+            {" "}
+            {c.city}
+          </li>
+        ))}
       </ul>
     </main>
   );
