@@ -11,13 +11,11 @@ export default function Home() {
       <ul>
         {customers.map((c) => (
           <li key={c.id}>
-            {c.first} {c.last},
-            {" "}
+            {c.first} {c.last},{" "}
             <Suspense fallback={<span>...</span>}>
               <CustomerAge dob={c.dob} />
-            </Suspense>,
-            {" "}
-            {c.city}
+            </Suspense>
+            , {c.city}
           </li>
         ))}
       </ul>

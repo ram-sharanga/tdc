@@ -5,21 +5,21 @@ import { listCustomers } from "@/lib/repo";
 import CustomerList from "@/components/CustomerList";
 
 async function DashboardData() {
-    await connection();
-    const rows = listCustomers().map((c) => ({
-        ...c,
-        age: age(c.dob),
-    }));
-    return <CustomerList customers={rows} />;
+  await connection();
+  const rows = listCustomers().map((c) => ({
+    ...c,
+    age: age(c.dob),
+  }));
+  return <CustomerList customers={rows} />;
 }
 
 export default function DashboardPage() {
-    return (
-        <main className="wrap">
-            <h1>Crew Captain, Asha</h1>
-            <Suspense fallback={<p className="muted">Loading customers...</p>}>
-                <DashboardData />
-            </Suspense>
-        </main>
-    );
+  return (
+    <main className="wrap">
+      <h1>Crew Captain, Asha</h1>
+      <Suspense fallback={<p className="muted">Loading customers...</p>}>
+        <DashboardData />
+      </Suspense>
+    </main>
+  );
 }

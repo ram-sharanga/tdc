@@ -2,28 +2,28 @@
 
 /* ============ 1. Design tokens ============ */
 :root {
-  --bg: #F6F2F3;
+  --bg: #f6f2f3;
   /* page background */
   --card: #fff;
   /* card surface */
-  --line: #E7DEE1;
+  --line: #e7dee1;
   /* borders and dividers */
-  --ink: #2A1E2B;
+  --ink: #2a1e2b;
   /* main text */
-  --mute: #75697A;
+  --mute: #75697a;
   /* secondary text */
-  --berry: #A93A63;
+  --berry: #a93a63;
   /* primary action */
-  --berry-d: #8C2D50;
+  --berry-d: #8c2d50;
   /* primary hover / dark text on tint */
-  --tint: #F4E1E8;
+  --tint: #f4e1e8;
   /* soft berry background */
-  --hover: #FAEDF1;
+  --hover: #faedf1;
   /* row hover: clearly pink, still light */
-  --gold: #B8892F;
+  --gold: #b8892f;
   /* verified badge */
-  --ok: #2F7D5B;
-  --warn: #B5731A;
+  --ok: #2f7d5b;
+  --warn: #b5731a;
   --r: 14px;
   /* card radius */
   /* These two read the variables that next/font defines in layout.tsx */
@@ -145,7 +145,7 @@ label {
 }
 
 .btn[disabled] {
-  opacity: .6;
+  opacity: 0.6;
   cursor: default;
 }
 
@@ -160,12 +160,12 @@ label {
 }
 
 .s-Onboarded {
-  background: #ECE8EC;
+  background: #ece8ec;
   color: #5b505f;
 }
 
 .s-Verified {
-  background: #DDEBF7;
+  background: #ddebf7;
   color: #255a85;
 }
 
@@ -175,17 +175,17 @@ label {
 }
 
 .s-Meeting {
-  background: #FBEBCF;
+  background: #fbebcf;
   color: #8a5a12;
 }
 
 .s-Feedback {
-  background: #E9E1F5;
+  background: #e9e1f5;
   color: #5a3d8a;
 }
 
 .s-Closed {
-  background: #DCEFE5;
+  background: #dcefe5;
   color: #256046;
 }
 
@@ -197,17 +197,17 @@ label {
 }
 
 .t-High {
-  background: #DCEFE5;
+  background: #dcefe5;
   color: var(--ok);
 }
 
 .t-Good {
-  background: #FBEBCF;
+  background: #fbebcf;
   color: var(--warn);
 }
 
 .t-Stretch {
-  background: #ECE8EC;
+  background: #ece8ec;
   color: var(--mute);
 }
 
@@ -219,7 +219,7 @@ label {
 }
 
 .hero {
-  background: linear-gradient(160deg, #5b2245, #A93A63);
+  background: linear-gradient(160deg, #5b2245, #a93a63);
   color: #fff;
   padding: 56px;
   display: flex;
@@ -234,7 +234,7 @@ label {
 
 .hero p {
   max-width: 34ch;
-  opacity: .85;
+  opacity: 0.85;
 }
 
 .logo {
@@ -342,7 +342,7 @@ label {
 
 .row {
   display: grid;
-  grid-template-columns: 2.2fr .5fr 1fr 1.1fr 1.3fr;
+  grid-template-columns: 2.2fr 0.5fr 1fr 1.1fr 1.3fr;
   gap: 12px;
   align-items: center;
   padding: 14px 20px;
@@ -362,7 +362,7 @@ a.row,
 button.row {
   text-decoration: none;
   color: inherit;
-  transition: background .12s;
+  transition: background 0.12s;
 }
 
 a.row:hover,
@@ -601,13 +601,13 @@ dd {
 }
 
 .fit .y {
-  background: #EAF5EF;
+  background: #eaf5ef;
   border-color: #cfe6da;
   color: var(--ok);
 }
 
 .fit .m {
-  background: #FDF3E1;
+  background: #fdf3e1;
   border-color: #f0dcb4;
   color: var(--warn);
 }
@@ -691,7 +691,7 @@ dd {
 .scrim {
   position: fixed;
   inset: 0;
-  background: rgba(42, 30, 43, .45);
+  background: rgba(42, 30, 43, 0.45);
   display: grid;
   place-items: center;
   padding: 16px;
@@ -732,7 +732,7 @@ dd {
   padding: 12px 20px;
   border-radius: 12px;
   z-index: 30;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   max-width: calc(100vw - 32px);
 }
 
@@ -781,28 +781,28 @@ dd {
     padding: 14px 16px;
   }
 
-  .row> :nth-child(1) {
+  .row > :nth-child(1) {
     grid-area: who;
   }
 
-  .row> :nth-child(2) {
+  .row > :nth-child(2) {
     grid-area: age;
   }
 
-  .row> :nth-child(3) {
+  .row > :nth-child(3) {
     grid-area: city;
   }
 
-  .row> :nth-child(4) {
+  .row > :nth-child(4) {
     grid-area: ms;
   }
 
-  .row> :nth-child(5) {
+  .row > :nth-child(5) {
     grid-area: status;
     justify-self: end;
   }
 
-  .row> :nth-child(n+2):nth-child(-n+4) {
+  .row > :nth-child(n + 2):nth-child(-n + 4) {
     font-size: 13px;
     color: var(--mute);
   }

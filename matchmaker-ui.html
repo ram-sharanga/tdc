@@ -1,282 +1,1248 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TDC Matchmaker</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-/* ---- Design tokens: change these first, everything inherits ---- */
-:root{
-  --bg:#F6F2F3; --card:#fff; --line:#E7DEE1; --ink:#2A1E2B; --mute:#75697A;
-  --berry:#A93A63; --berry-d:#8C2D50; --tint:#F4E1E8; --gold:#B8892F;
-  --ok:#2F7D5B; --warn:#B5731A; --r:14px;
-  --head:'Fraunces',Georgia,serif; --body:'Inter',system-ui,sans-serif;
-}
-*{box-sizing:border-box;margin:0}
-body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body)}
-h1,h2,h3{font-family:var(--head);font-weight:600;line-height:1.2}
-button,input,select,textarea{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--berry);outline-offset:2px}
-[hidden]{display:none!important}
-.btn{border:1px solid var(--line);background:#fff;padding:10px 16px;border-radius:10px;cursor:pointer;min-height:44px}
-.btn:hover{background:#faf6f7}
-.btn.primary{background:var(--berry);border-color:var(--berry);color:#fff;font-weight:600}
-.btn.primary:hover{background:var(--berry-d)}
-.btn[disabled]{opacity:.6;cursor:default}
-.muted{color:var(--mute)}
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TDC Matchmaker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ---- Design tokens: change these first, everything inherits ---- */
+      :root {
+        --bg: #f6f2f3;
+        --card: #fff;
+        --line: #e7dee1;
+        --ink: #2a1e2b;
+        --mute: #75697a;
+        --berry: #a93a63;
+        --berry-d: #8c2d50;
+        --tint: #f4e1e8;
+        --gold: #b8892f;
+        --ok: #2f7d5b;
+        --warn: #b5731a;
+        --r: 14px;
+        --head: "Fraunces", Georgia, serif;
+        --body: "Inter", system-ui, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font: 15px/1.5 var(--body);
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: var(--head);
+        font-weight: 600;
+        line-height: 1.2;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 3px solid var(--berry);
+        outline-offset: 2px;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      .btn {
+        border: 1px solid var(--line);
+        background: #fff;
+        padding: 10px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        min-height: 44px;
+      }
+      .btn:hover {
+        background: #faf6f7;
+      }
+      .btn.primary {
+        background: var(--berry);
+        border-color: var(--berry);
+        color: #fff;
+        font-weight: 600;
+      }
+      .btn.primary:hover {
+        background: var(--berry-d);
+      }
+      .btn[disabled] {
+        opacity: 0.6;
+        cursor: default;
+      }
+      .muted {
+        color: var(--mute);
+      }
 
-/* ---- Status pills ---- */
-.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:13px;font-weight:500;white-space:nowrap}
-.s-Onboarded{background:#ECE8EC;color:#5b505f}.s-Verified{background:#DDEBF7;color:#255a85}
-.s-Shared{background:var(--tint);color:var(--berry-d)}.s-Meeting{background:#FBEBCF;color:#8a5a12}
-.s-Feedback{background:#E9E1F5;color:#5a3d8a}.s-Closed{background:#DCEFE5;color:#256046}
+      /* ---- Status pills ---- */
+      .pill {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 99px;
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+      .s-Onboarded {
+        background: #ece8ec;
+        color: #5b505f;
+      }
+      .s-Verified {
+        background: #ddebf7;
+        color: #255a85;
+      }
+      .s-Shared {
+        background: var(--tint);
+        color: var(--berry-d);
+      }
+      .s-Meeting {
+        background: #fbebcf;
+        color: #8a5a12;
+      }
+      .s-Feedback {
+        background: #e9e1f5;
+        color: #5a3d8a;
+      }
+      .s-Closed {
+        background: #dcefe5;
+        color: #256046;
+      }
 
-/* ---- Login ---- */
-#login{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr}
-.hero{background:linear-gradient(160deg,#5b2245,#A93A63);color:#fff;padding:56px;display:flex;flex-direction:column;justify-content:space-between}
-.hero h1{font-size:clamp(34px,4.6vw,56px);max-width:11ch}
-.hero p{max-width:34ch;opacity:.85}
-.logo{font-family:var(--head);font-size:22px}
-.login-box{display:flex;align-items:center;justify-content:center;padding:32px}
-.login-box form{width:100%;max-width:360px;display:grid;gap:14px}
-label{display:grid;gap:6px;font-weight:500;font-size:14px}
-input,select,textarea{border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fff;width:100%}
-.err{color:#b3261e;font-size:14px;min-height:20px}
-.demo{font-size:13px;background:#fff;border:1px dashed var(--line);padding:10px 12px;border-radius:10px}
+      /* ---- Login ---- */
+      #login {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 1.1fr 1fr;
+      }
+      .hero {
+        background: linear-gradient(160deg, #5b2245, #a93a63);
+        color: #fff;
+        padding: 56px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .hero h1 {
+        font-size: clamp(34px, 4.6vw, 56px);
+        max-width: 11ch;
+      }
+      .hero p {
+        max-width: 34ch;
+        opacity: 0.85;
+      }
+      .logo {
+        font-family: var(--head);
+        font-size: 22px;
+      }
+      .login-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+      }
+      .login-box form {
+        width: 100%;
+        max-width: 360px;
+        display: grid;
+        gap: 14px;
+      }
+      label {
+        display: grid;
+        gap: 6px;
+        font-weight: 500;
+        font-size: 14px;
+      }
+      input,
+      select,
+      textarea {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 11px 12px;
+        background: #fff;
+        width: 100%;
+      }
+      .err {
+        color: #b3261e;
+        font-size: 14px;
+        min-height: 20px;
+      }
+      .demo {
+        font-size: 13px;
+        background: #fff;
+        border: 1px dashed var(--line);
+        padding: 10px 12px;
+        border-radius: 10px;
+      }
 
-/* ---- App shell ---- */
-.top{display:flex;justify-content:space-between;align-items:center;padding:14px 28px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
-.wrap{max-width:1040px;margin:0 auto;padding:28px 20px 80px}
-.stats{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 22px}
-.tools{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-.tools input{max-width:300px}
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 14px;cursor:pointer;font-size:14px}
-.chip[aria-pressed=true]{background:var(--berry);border-color:var(--berry);color:#fff}
+      /* ---- App shell ---- */
+      .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 28px;
+        background: #fff;
+        border-bottom: 1px solid var(--line);
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+      .wrap {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 28px 20px 80px;
+      }
+      .stats {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 10px 0 22px;
+      }
+      .tools {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .tools input {
+        max-width: 300px;
+      }
+      .chips {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .chip {
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 99px;
+        padding: 6px 14px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .chip[aria-pressed="true"] {
+        background: var(--berry);
+        border-color: var(--berry);
+        color: #fff;
+      }
 
-/* ---- Customer table ---- */
-.list{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.row{display:grid;grid-template-columns:2.2fr .5fr 1fr 1.1fr 1.3fr;gap:12px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line);width:100%;text-align:left;background:none;border-left:0;border-right:0;border-top:0;cursor:pointer}
-.row:last-child{border-bottom:0}
-button.row:hover{background:#fcf8f9}
-.row.head{cursor:default;font-size:13px;color:var(--mute);padding-top:10px;padding-bottom:10px;background:#faf6f7}
-.who{display:flex;gap:12px;align-items:center;font-weight:500}
-.av{width:38px;height:38px;border-radius:50%;background:var(--tint);color:var(--berry-d);display:grid;place-items:center;font-weight:600;font-size:14px;flex:none}
-.empty{padding:40px;text-align:center}
+      /* ---- Customer table ---- */
+      .list {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        overflow: hidden;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 2.2fr 0.5fr 1fr 1.1fr 1.3fr;
+        gap: 12px;
+        align-items: center;
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--line);
+        width: 100%;
+        text-align: left;
+        background: none;
+        border-left: 0;
+        border-right: 0;
+        border-top: 0;
+        cursor: pointer;
+      }
+      .row:last-child {
+        border-bottom: 0;
+      }
+      button.row:hover {
+        background: #fcf8f9;
+      }
+      .row.head {
+        cursor: default;
+        font-size: 13px;
+        color: var(--mute);
+        padding-top: 10px;
+        padding-bottom: 10px;
+        background: #faf6f7;
+      }
+      .who {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        font-weight: 500;
+      }
+      .av {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: var(--tint);
+        color: var(--berry-d);
+        display: grid;
+        place-items: center;
+        font-weight: 600;
+        font-size: 14px;
+        flex: none;
+      }
+      .empty {
+        padding: 40px;
+        text-align: center;
+      }
 
-/* ---- Detail ---- */
-.back{background:none;border:0;color:var(--berry-d);cursor:pointer;padding:6px 0;margin-bottom:10px}
-.dhead{display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:space-between;margin-bottom:18px}
-.dhead .who .av{width:56px;height:56px;font-size:20px}
-.badge{color:var(--gold);font-size:13px;font-weight:500}
-.stepper{display:flex;gap:0;margin:6px 0 22px;overflow-x:auto}
-.step{flex:1;min-width:110px;font-size:13px;color:var(--mute);padding-top:14px;position:relative;border-top:3px solid var(--line)}
-.step.done{border-color:var(--berry);color:var(--ink)}
-.step.now{border-color:var(--berry);color:var(--berry-d);font-weight:600}
-.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px}
-.tab{background:none;border:0;padding:10px 16px;cursor:pointer;color:var(--mute);border-bottom:3px solid transparent;margin-bottom:-1px}
-.tab[aria-selected=true]{color:var(--ink);border-color:var(--berry);font-weight:600}
-.groups{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-.group{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px}
-.group:nth-child(odd){border-top:3px solid var(--tint)}
-.group h3{font-size:18px;margin-bottom:12px}
-dl{display:grid;grid-template-columns:130px 1fr;gap:8px 12px;font-size:14px}
-dt{color:var(--mute)}dd{margin:0}
+      /* ---- Detail ---- */
+      .back {
+        background: none;
+        border: 0;
+        color: var(--berry-d);
+        cursor: pointer;
+        padding: 6px 0;
+        margin-bottom: 10px;
+      }
+      .dhead {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin-bottom: 18px;
+      }
+      .dhead .who .av {
+        width: 56px;
+        height: 56px;
+        font-size: 20px;
+      }
+      .badge {
+        color: var(--gold);
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .stepper {
+        display: flex;
+        gap: 0;
+        margin: 6px 0 22px;
+        overflow-x: auto;
+      }
+      .step {
+        flex: 1;
+        min-width: 110px;
+        font-size: 13px;
+        color: var(--mute);
+        padding-top: 14px;
+        position: relative;
+        border-top: 3px solid var(--line);
+      }
+      .step.done {
+        border-color: var(--berry);
+        color: var(--ink);
+      }
+      .step.now {
+        border-color: var(--berry);
+        color: var(--berry-d);
+        font-weight: 600;
+      }
+      .tabs {
+        display: flex;
+        gap: 4px;
+        border-bottom: 1px solid var(--line);
+        margin-bottom: 20px;
+      }
+      .tab {
+        background: none;
+        border: 0;
+        padding: 10px 16px;
+        cursor: pointer;
+        color: var(--mute);
+        border-bottom: 3px solid transparent;
+        margin-bottom: -1px;
+      }
+      .tab[aria-selected="true"] {
+        color: var(--ink);
+        border-color: var(--berry);
+        font-weight: 600;
+      }
+      .groups {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .group {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        padding: 20px;
+      }
+      .group:nth-child(odd) {
+        border-top: 3px solid var(--tint);
+      }
+      .group h3 {
+        font-size: 18px;
+        margin-bottom: 12px;
+      }
+      dl {
+        display: grid;
+        grid-template-columns: 130px 1fr;
+        gap: 8px 12px;
+        font-size: 14px;
+      }
+      dt {
+        color: var(--mute);
+      }
+      dd {
+        margin: 0;
+      }
 
-/* ---- Matches ---- */
-.match{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;margin-bottom:16px;display:grid;grid-template-columns:84px 1fr;gap:20px}
-.ring{--p:80;width:84px;height:84px;border-radius:50%;display:grid;place-items:center;position:relative;
-  background:conic-gradient(var(--berry) calc(var(--p)*1%),#eadde2 0)}
-.ring::before{content:"";position:absolute;inset:8px;border-radius:50%;background:#fff}
-.ring b{position:relative;font-family:var(--head);font-size:26px}
-.mtop{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
-.mtop h3{font-size:20px}
-.tier{font-size:13px;font-weight:600;padding:3px 10px;border-radius:99px}
-.t-High{background:#DCEFE5;color:var(--ok)}.t-Good{background:#FBEBCF;color:var(--warn)}.t-Stretch{background:#ECE8EC;color:var(--mute)}
-.facts{display:flex;gap:6px 14px;flex-wrap:wrap;margin:8px 0;font-size:14px;color:var(--mute)}
-.fit{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-.fit span{font-size:13px;padding:3px 10px;border-radius:8px;border:1px solid var(--line)}
-.fit .y{background:#EAF5EF;border-color:#cfe6da;color:var(--ok)}.fit .m{background:#FDF3E1;border-color:#f0dcb4;color:var(--warn)}.fit .n{background:#f3eff1;color:var(--mute)}
-.why{background:var(--tint);border-radius:10px;padding:12px 14px;font-size:14px;margin:10px 0}
-.why b{color:var(--berry-d)}
-.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.bars{display:grid;gap:8px;margin-top:12px;font-size:13px}
-.bar{display:grid;grid-template-columns:110px 1fr 34px;gap:10px;align-items:center}
-.bar i{display:block;height:8px;border-radius:99px;background:#eadde2;overflow:hidden}
-.bar i u{display:block;height:100%;background:var(--berry);text-decoration:none}
+      /* ---- Matches ---- */
+      .match {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        padding: 22px;
+        margin-bottom: 16px;
+        display: grid;
+        grid-template-columns: 84px 1fr;
+        gap: 20px;
+      }
+      .ring {
+        --p: 80;
+        width: 84px;
+        height: 84px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        position: relative;
+        background: conic-gradient(var(--berry) calc(var(--p) * 1%), #eadde2 0);
+      }
+      .ring::before {
+        content: "";
+        position: absolute;
+        inset: 8px;
+        border-radius: 50%;
+        background: #fff;
+      }
+      .ring b {
+        position: relative;
+        font-family: var(--head);
+        font-size: 26px;
+      }
+      .mtop {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: baseline;
+      }
+      .mtop h3 {
+        font-size: 20px;
+      }
+      .tier {
+        font-size: 13px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 99px;
+      }
+      .t-High {
+        background: #dcefe5;
+        color: var(--ok);
+      }
+      .t-Good {
+        background: #fbebcf;
+        color: var(--warn);
+      }
+      .t-Stretch {
+        background: #ece8ec;
+        color: var(--mute);
+      }
+      .facts {
+        display: flex;
+        gap: 6px 14px;
+        flex-wrap: wrap;
+        margin: 8px 0;
+        font-size: 14px;
+        color: var(--mute);
+      }
+      .fit {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 10px 0;
+      }
+      .fit span {
+        font-size: 13px;
+        padding: 3px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+      }
+      .fit .y {
+        background: #eaf5ef;
+        border-color: #cfe6da;
+        color: var(--ok);
+      }
+      .fit .m {
+        background: #fdf3e1;
+        border-color: #f0dcb4;
+        color: var(--warn);
+      }
+      .fit .n {
+        background: #f3eff1;
+        color: var(--mute);
+      }
+      .why {
+        background: var(--tint);
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 14px;
+        margin: 10px 0;
+      }
+      .why b {
+        color: var(--berry-d);
+      }
+      .acts {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      .bars {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+        font-size: 13px;
+      }
+      .bar {
+        display: grid;
+        grid-template-columns: 110px 1fr 34px;
+        gap: 10px;
+        align-items: center;
+      }
+      .bar i {
+        display: block;
+        height: 8px;
+        border-radius: 99px;
+        background: #eadde2;
+        overflow: hidden;
+      }
+      .bar i u {
+        display: block;
+        height: 100%;
+        background: var(--berry);
+        text-decoration: none;
+      }
 
-/* ---- Notes ---- */
-.notebox{display:grid;gap:10px;margin-bottom:20px;max-width:640px}
-.note{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--berry);border-radius:10px;padding:12px 16px;margin-bottom:10px;max-width:640px}
-.note small{color:var(--mute)}
+      /* ---- Notes ---- */
+      .notebox {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 20px;
+        max-width: 640px;
+      }
+      .note {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--berry);
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 10px;
+        max-width: 640px;
+      }
+      .note small {
+        color: var(--mute);
+      }
 
-/* ---- Modal + toast ---- */
-.scrim{position:fixed;inset:0;background:rgba(42,30,43,.45);display:grid;place-items:center;padding:16px;z-index:20}
-.modal{background:#fff;border-radius:18px;max-width:560px;width:100%;max-height:92vh;overflow:auto;padding:26px;display:grid;gap:14px}
-.sum{background:var(--bg);border-radius:10px;padding:14px;font-size:14px}
-.sum strong{font-family:var(--head);font-size:17px}
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;z-index:30;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+      /* ---- Modal + toast ---- */
+      .scrim {
+        position: fixed;
+        inset: 0;
+        background: rgba(42, 30, 43, 0.45);
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        z-index: 20;
+      }
+      .modal {
+        background: #fff;
+        border-radius: 18px;
+        max-width: 560px;
+        width: 100%;
+        max-height: 92vh;
+        overflow: auto;
+        padding: 26px;
+        display: grid;
+        gap: 14px;
+      }
+      .sum {
+        background: var(--bg);
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 14px;
+      }
+      .sum strong {
+        font-family: var(--head);
+        font-size: 17px;
+      }
+      #toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--ink);
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 12px;
+        z-index: 30;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      }
 
-@media(max-width:760px){
-  #login{grid-template-columns:1fr}.hero{display:none}
-  .row{grid-template-columns:1fr auto;gap:4px 12px}.row.head{display:none}
-  .row .c-age,.row .c-city,.row .c-ms{font-size:13px;color:var(--mute);display:inline}
-  .groups{grid-template-columns:1fr}.match{grid-template-columns:1fr}
-}
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-</style>
-</head>
-<body>
+      @media (max-width: 760px) {
+        #login {
+          grid-template-columns: 1fr;
+        }
+        .hero {
+          display: none;
+        }
+        .row {
+          grid-template-columns: 1fr auto;
+          gap: 4px 12px;
+        }
+        .row.head {
+          display: none;
+        }
+        .row .c-age,
+        .row .c-city,
+        .row .c-ms {
+          font-size: 13px;
+          color: var(--mute);
+          display: inline;
+        }
+        .groups {
+          grid-template-columns: 1fr;
+        }
+        .match {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ===== LOGIN ===== -->
+    <section id="login">
+      <div class="hero">
+        <div class="logo">The Date Crew</div>
+        <div>
+          <h1>Thoughtful matches, made personally.</h1>
+          <p style="margin-top: 16px">
+            Your clients, their stories, and the people who might be right for
+            them, in one place.
+          </p>
+        </div>
+        <small style="opacity: 0.7">Matchmaker workspace</small>
+      </div>
+      <div class="login-box">
+        <form id="loginForm" novalidate>
+          <h2>Welcome back</h2>
+          <label>Username<input id="u" autocomplete="username" /></label>
+          <label
+            >Password<input
+              id="p"
+              type="password"
+              autocomplete="current-password"
+          /></label>
+          <div class="err" id="err" role="alert"></div>
+          <button class="btn primary">Sign in</button>
+          <div class="demo">Demo login: <b>asha</b> / <b>Match@123</b></div>
+        </form>
+      </div>
+    </section>
 
-<!-- ===== LOGIN ===== -->
-<section id="login">
-  <div class="hero">
-    <div class="logo">The Date Crew</div>
-    <div><h1>Thoughtful matches, made personally.</h1><p style="margin-top:16px">Your clients, their stories, and the people who might be right for them, in one place.</p></div>
-    <small style="opacity:.7">Matchmaker workspace</small>
-  </div>
-  <div class="login-box">
-    <form id="loginForm" novalidate>
-      <h2>Welcome back</h2>
-      <label>Username<input id="u" autocomplete="username"></label>
-      <label>Password<input id="p" type="password" autocomplete="current-password"></label>
-      <div class="err" id="err" role="alert"></div>
-      <button class="btn primary">Sign in</button>
-      <div class="demo">Demo login: <b>asha</b> / <b>Match@123</b></div>
-    </form>
-  </div>
-</section>
+    <!-- ===== APP ===== -->
+    <div id="app" hidden>
+      <header class="top">
+        <div class="logo">The Date Crew</div>
+        <div>
+          <span class="muted">Asha</span> &nbsp;<button class="btn" id="out">
+            Log out
+          </button>
+        </div>
+      </header>
+      <main class="wrap" id="main"></main>
+    </div>
+    <div id="modalRoot"></div>
+    <div id="toast" hidden role="status"></div>
 
-<!-- ===== APP ===== -->
-<div id="app" hidden>
-  <header class="top"><div class="logo">The Date Crew</div>
-    <div><span class="muted">Asha</span> &nbsp;<button class="btn" id="out">Log out</button></div></header>
-  <main class="wrap" id="main"></main>
-</div>
-<div id="modalRoot"></div>
-<div id="toast" hidden role="status"></div>
+    <script>
+      /* ============ Hard-coded data (replace with API later; keep the same shapes) ============ */
+      const STATUSES = [
+        "Onboarded",
+        "Verified",
+        "Profile Shared",
+        "Meeting Scheduled",
+        "Feedback",
+        "Closed",
+      ];
+      const sClass = (s) =>
+        ({ "Profile Shared": "Shared", "Meeting Scheduled": "Meeting" })[s] ||
+        s;
+      const C = [
+        {
+          id: "c1",
+          first: "Priya",
+          last: "Nair",
+          gender: "Female",
+          dob: "1996-03-14",
+          city: "Chennai",
+          country: "India",
+          marital: "Never Married",
+          status: "Verified",
+          email: "priya.nair@example.com",
+          phone: "+91 98400 11223",
+          height: 162,
+          college: "Anna University",
+          degree: "B.E. Computer Science",
+          income: 18,
+          company: "Zoho",
+          designation: "Software Engineer",
+          languages: "Tamil, English, Malayalam",
+          siblings: 1,
+          religion: "Hindu",
+          caste: "Nair",
+          kids: "Yes",
+          relocate: "Maybe",
+          pets: "Yes",
+          diet: "Vegetarian",
+          family: "Nuclear",
+        },
+        {
+          id: "c2",
+          first: "Rohit",
+          last: "Kumar",
+          gender: "Male",
+          dob: "1993-08-02",
+          city: "Pune",
+          country: "India",
+          marital: "Divorced",
+          status: "Profile Shared",
+          email: "rohit.k@example.com",
+          phone: "+91 98200 44556",
+          height: 176,
+          college: "VIT Vellore",
+          degree: "B.Tech Mechanical",
+          income: 32,
+          company: "Tata Motors",
+          designation: "Senior Engineer",
+          languages: "Hindi, English, Marathi",
+          siblings: 2,
+          religion: "Hindu",
+          caste: "Kshatriya",
+          kids: "Maybe",
+          relocate: "Yes",
+          pets: "No",
+          diet: "Non-Vegetarian",
+          family: "Joint",
+        },
+        {
+          id: "c3",
+          first: "Ananya",
+          last: "Iyer",
+          gender: "Female",
+          dob: "1994-11-21",
+          city: "Bengaluru",
+          country: "India",
+          marital: "Never Married",
+          status: "Meeting Scheduled",
+          email: "ananya.i@example.com",
+          phone: "+91 99000 77889",
+          height: 165,
+          college: "BITS Pilani",
+          degree: "MBA",
+          income: 30,
+          company: "Deloitte",
+          designation: "Consultant",
+          languages: "Tamil, English, Kannada",
+          siblings: 0,
+          religion: "Hindu",
+          caste: "Iyer",
+          kids: "Yes",
+          relocate: "Yes",
+          pets: "Maybe",
+          diet: "Vegetarian",
+          family: "Nuclear",
+        },
+        {
+          id: "c4",
+          first: "Imran",
+          last: "Sheikh",
+          gender: "Male",
+          dob: "1991-05-09",
+          city: "Hyderabad",
+          country: "India",
+          marital: "Never Married",
+          status: "Onboarded",
+          email: "imran.s@example.com",
+          phone: "+91 90300 12345",
+          height: 174,
+          college: "JNTU Hyderabad",
+          degree: "B.Tech Electronics",
+          income: 26,
+          company: "Infosys",
+          designation: "Tech Lead",
+          languages: "Urdu, English, Telugu",
+          siblings: 3,
+          religion: "Muslim",
+          caste: "Sheikh",
+          kids: "Yes",
+          relocate: "No",
+          pets: "Maybe",
+          diet: "Non-Vegetarian",
+          family: "Joint",
+        },
+        {
+          id: "c5",
+          first: "Meera",
+          last: "Pillai",
+          gender: "Female",
+          dob: "1992-01-30",
+          city: "Kochi",
+          country: "India",
+          marital: "Divorced",
+          status: "Feedback",
+          email: "meera.p@example.com",
+          phone: "+91 94470 66778",
+          height: 158,
+          college: "NIT Calicut",
+          degree: "B.Tech Civil",
+          income: 22,
+          company: "L&T",
+          designation: "Project Manager",
+          languages: "Malayalam, English",
+          siblings: 1,
+          religion: "Hindu",
+          caste: "Pillai",
+          kids: "Maybe",
+          relocate: "Maybe",
+          pets: "Yes",
+          diet: "Non-Vegetarian",
+          family: "Nuclear",
+        },
+      ];
+      // Match results use the shape the real engine will return: {candidate, score, tier, fit[], breakdown[], why}
+      const MATCHES = {
+        Female: [
+          {
+            name: "Arjun Sundaram",
+            age: 31,
+            city: "Bengaluru",
+            role: "Product Manager",
+            edu: "IIT Madras, B.Tech",
+            height: 176,
+            langs: "Tamil, English",
+            score: 87,
+            tier: "High",
+            fit: [
+              ["y", "Wants kids: Yes"],
+              ["y", "Open to relocate"],
+              ["y", "4 years older"],
+              ["m", "Earns more"],
+            ],
+            bd: [
+              ["Kids", 100],
+              ["Relocation", 90],
+              ["Profession", 78],
+              ["Age gap", 85],
+              ["Languages", 80],
+            ],
+            why: "Both want children and are open to moving, and Arjun's product role pairs well with a software career. Shared Tamil makes family conversations easy.",
+          },
+          {
+            name: "Karthik Raman",
+            age: 33,
+            city: "Chennai",
+            role: "Data Scientist",
+            edu: "NIT Trichy, M.Tech",
+            height: 174,
+            langs: "Tamil, English",
+            score: 79,
+            tier: "Good",
+            fit: [
+              ["y", "Wants kids: Yes"],
+              ["m", "Relocation: Maybe"],
+              ["y", "Same city"],
+              ["y", "Same field"],
+            ],
+            bd: [
+              ["Kids", 100],
+              ["Relocation", 60],
+              ["Profession", 88],
+              ["Age gap", 70],
+              ["Languages", 85],
+            ],
+            why: "Same city and a closely related career. Relocation is open on both sides, so it's worth confirming plans early.",
+          },
+          {
+            name: "Vikram Menon",
+            age: 36,
+            city: "Hyderabad",
+            role: "Architect",
+            edu: "CEPT, B.Arch",
+            height: 178,
+            langs: "Malayalam, English",
+            score: 58,
+            tier: "Stretch",
+            fit: [
+              ["m", "Kids: Maybe"],
+              ["n", "Different city"],
+              ["m", "8 years older"],
+            ],
+            bd: [
+              ["Kids", 55],
+              ["Relocation", 45],
+              ["Profession", 50],
+              ["Age gap", 48],
+              ["Languages", 70],
+            ],
+            why: "A bigger age gap and a different city, but a shared Malayalam background. Consider only if age flexibility was mentioned in the call.",
+          },
+        ],
+        Male: [
+          {
+            name: "Divya Krishnan",
+            age: 28,
+            city: "Pune",
+            role: "UX Designer",
+            edu: "NID, M.Des",
+            height: 163,
+            langs: "Hindi, English",
+            score: 84,
+            tier: "High",
+            fit: [
+              ["y", "Kids: aligned"],
+              ["y", "Open to relocate"],
+              ["y", "Younger"],
+              ["y", "Earns less"],
+            ],
+            bd: [
+              ["Kids", 90],
+              ["Relocation", 95],
+              ["Age gap", 85],
+              ["Income", 80],
+              ["Height", 78],
+            ],
+            why: "Younger, shorter and earning slightly less, matching the preferences on file, with aligned views on children. Same city makes a first meeting easy.",
+          },
+          {
+            name: "Neha Joshi",
+            age: 29,
+            city: "Mumbai",
+            role: "Doctor",
+            edu: "KEM, MBBS",
+            height: 160,
+            langs: "Marathi, Hindi",
+            score: 72,
+            tier: "Good",
+            fit: [
+              ["y", "Wants kids: Yes"],
+              ["m", "Relocation: Maybe"],
+              ["y", "Younger"],
+              ["m", "Earns similar"],
+            ],
+            bd: [
+              ["Kids", 100],
+              ["Relocation", 55],
+              ["Age gap", 80],
+              ["Income", 50],
+              ["Height", 85],
+            ],
+            why: "Strong alignment on children and a comfortable age gap. Her demanding schedule and different city need a quick conversation.",
+          },
+          {
+            name: "Pooja Reddy",
+            age: 27,
+            city: "Hyderabad",
+            role: "Teacher",
+            edu: "Osmania, M.A.",
+            height: 157,
+            langs: "Telugu, English",
+            score: 56,
+            tier: "Stretch",
+            fit: [
+              ["m", "Kids: Maybe"],
+              ["n", "Not open to relocate"],
+              ["y", "Younger"],
+            ],
+            bd: [
+              ["Kids", 55],
+              ["Relocation", 30],
+              ["Age gap", 90],
+              ["Income", 85],
+              ["Height", 80],
+            ],
+            why: "Fits on age, height and income, but relocation is a likely sticking point.",
+          },
+        ],
+      };
 
-<script>
-/* ============ Hard-coded data (replace with API later; keep the same shapes) ============ */
-const STATUSES=["Onboarded","Verified","Profile Shared","Meeting Scheduled","Feedback","Closed"];
-const sClass=s=>({"Profile Shared":"Shared","Meeting Scheduled":"Meeting"}[s]||s);
-const C=[
- {id:"c1",first:"Priya",last:"Nair",gender:"Female",dob:"1996-03-14",city:"Chennai",country:"India",marital:"Never Married",status:"Verified",email:"priya.nair@example.com",phone:"+91 98400 11223",height:162,college:"Anna University",degree:"B.E. Computer Science",income:18,company:"Zoho",designation:"Software Engineer",languages:"Tamil, English, Malayalam",siblings:1,religion:"Hindu",caste:"Nair",kids:"Yes",relocate:"Maybe",pets:"Yes",diet:"Vegetarian",family:"Nuclear"},
- {id:"c2",first:"Rohit",last:"Kumar",gender:"Male",dob:"1993-08-02",city:"Pune",country:"India",marital:"Divorced",status:"Profile Shared",email:"rohit.k@example.com",phone:"+91 98200 44556",height:176,college:"VIT Vellore",degree:"B.Tech Mechanical",income:32,company:"Tata Motors",designation:"Senior Engineer",languages:"Hindi, English, Marathi",siblings:2,religion:"Hindu",caste:"Kshatriya",kids:"Maybe",relocate:"Yes",pets:"No",diet:"Non-Vegetarian",family:"Joint"},
- {id:"c3",first:"Ananya",last:"Iyer",gender:"Female",dob:"1994-11-21",city:"Bengaluru",country:"India",marital:"Never Married",status:"Meeting Scheduled",email:"ananya.i@example.com",phone:"+91 99000 77889",height:165,college:"BITS Pilani",degree:"MBA",income:30,company:"Deloitte",designation:"Consultant",languages:"Tamil, English, Kannada",siblings:0,religion:"Hindu",caste:"Iyer",kids:"Yes",relocate:"Yes",pets:"Maybe",diet:"Vegetarian",family:"Nuclear"},
- {id:"c4",first:"Imran",last:"Sheikh",gender:"Male",dob:"1991-05-09",city:"Hyderabad",country:"India",marital:"Never Married",status:"Onboarded",email:"imran.s@example.com",phone:"+91 90300 12345",height:174,college:"JNTU Hyderabad",degree:"B.Tech Electronics",income:26,company:"Infosys",designation:"Tech Lead",languages:"Urdu, English, Telugu",siblings:3,religion:"Muslim",caste:"Sheikh",kids:"Yes",relocate:"No",pets:"Maybe",diet:"Non-Vegetarian",family:"Joint"},
- {id:"c5",first:"Meera",last:"Pillai",gender:"Female",dob:"1992-01-30",city:"Kochi",country:"India",marital:"Divorced",status:"Feedback",email:"meera.p@example.com",phone:"+91 94470 66778",height:158,college:"NIT Calicut",degree:"B.Tech Civil",income:22,company:"L&T",designation:"Project Manager",languages:"Malayalam, English",siblings:1,religion:"Hindu",caste:"Pillai",kids:"Maybe",relocate:"Maybe",pets:"Yes",diet:"Non-Vegetarian",family:"Nuclear"}
-];
-// Match results use the shape the real engine will return: {candidate, score, tier, fit[], breakdown[], why}
-const MATCHES={
- Female:[
-  {name:"Arjun Sundaram",age:31,city:"Bengaluru",role:"Product Manager",edu:"IIT Madras, B.Tech",height:176,langs:"Tamil, English",score:87,tier:"High",fit:[["y","Wants kids: Yes"],["y","Open to relocate"],["y","4 years older"],["m","Earns more"]],bd:[["Kids",100],["Relocation",90],["Profession",78],["Age gap",85],["Languages",80]],why:"Both want children and are open to moving, and Arjun's product role pairs well with a software career. Shared Tamil makes family conversations easy."},
-  {name:"Karthik Raman",age:33,city:"Chennai",role:"Data Scientist",edu:"NIT Trichy, M.Tech",height:174,langs:"Tamil, English",score:79,tier:"Good",fit:[["y","Wants kids: Yes"],["m","Relocation: Maybe"],["y","Same city"],["y","Same field"]],bd:[["Kids",100],["Relocation",60],["Profession",88],["Age gap",70],["Languages",85]],why:"Same city and a closely related career. Relocation is open on both sides, so it's worth confirming plans early."},
-  {name:"Vikram Menon",age:36,city:"Hyderabad",role:"Architect",edu:"CEPT, B.Arch",height:178,langs:"Malayalam, English",score:58,tier:"Stretch",fit:[["m","Kids: Maybe"],["n","Different city"],["m","8 years older"]],bd:[["Kids",55],["Relocation",45],["Profession",50],["Age gap",48],["Languages",70]],why:"A bigger age gap and a different city, but a shared Malayalam background. Consider only if age flexibility was mentioned in the call."}
- ],
- Male:[
-  {name:"Divya Krishnan",age:28,city:"Pune",role:"UX Designer",edu:"NID, M.Des",height:163,langs:"Hindi, English",score:84,tier:"High",fit:[["y","Kids: aligned"],["y","Open to relocate"],["y","Younger"],["y","Earns less"]],bd:[["Kids",90],["Relocation",95],["Age gap",85],["Income",80],["Height",78]],why:"Younger, shorter and earning slightly less, matching the preferences on file, with aligned views on children. Same city makes a first meeting easy."},
-  {name:"Neha Joshi",age:29,city:"Mumbai",role:"Doctor",edu:"KEM, MBBS",height:160,langs:"Marathi, Hindi",score:72,tier:"Good",fit:[["y","Wants kids: Yes"],["m","Relocation: Maybe"],["y","Younger"],["m","Earns similar"]],bd:[["Kids",100],["Relocation",55],["Age gap",80],["Income",50],["Height",85]],why:"Strong alignment on children and a comfortable age gap. Her demanding schedule and different city need a quick conversation."},
-  {name:"Pooja Reddy",age:27,city:"Hyderabad",role:"Teacher",edu:"Osmania, M.A.",height:157,langs:"Telugu, English",score:56,tier:"Stretch",fit:[["m","Kids: Maybe"],["n","Not open to relocate"],["y","Younger"]],bd:[["Kids",55],["Relocation",30],["Age gap",90],["Income",85],["Height",80]],why:"Fits on age, height and income, but relocation is a likely sticking point."}
- ]};
+      /* ============ State + helpers ============ */
+      const S = {
+        filter: "All",
+        q: "",
+        tab: "profile",
+        cur: null,
+        notes: {
+          c1: [
+            {
+              t: "12 Oct, 4:10 pm",
+              x: "Call went well. Wants a partner who is comfortable with her career and open to moving later.",
+            },
+          ],
+        },
+        sent: {},
+        open: {},
+      };
+      const $ = (s) => document.querySelector(s);
+      const age = (d) => {
+        const b = new Date(d),
+          n = new Date();
+        let a = n.getFullYear() - b.getFullYear();
+        if (n < new Date(n.getFullYear(), b.getMonth(), b.getDate())) a--;
+        return a;
+      };
+      const ini = (c) => c.first[0] + c.last[0];
+      const toast = (m) => {
+        const t = $("#toast");
+        t.textContent = m;
+        t.hidden = false;
+        clearTimeout(toast.h);
+        toast.h = setTimeout(() => (t.hidden = true), 2600);
+      };
 
-/* ============ State + helpers ============ */
-const S={filter:"All",q:"",tab:"profile",cur:null,notes:{c1:[{t:"12 Oct, 4:10 pm",x:"Call went well. Wants a partner who is comfortable with her career and open to moving later."}]},sent:{},open:{}};
-const $=s=>document.querySelector(s);
-const age=d=>{const b=new Date(d),n=new Date();let a=n.getFullYear()-b.getFullYear();if(n<new Date(n.getFullYear(),b.getMonth(),b.getDate()))a--;return a};
-const ini=c=>c.first[0]+c.last[0];
-const toast=m=>{const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2600)};
+      /* ============ Login ============ */
+      $("#loginForm").onsubmit = (e) => {
+        e.preventDefault();
+        if ($("#u").value.trim() === "asha" && $("#p").value === "Match@123") {
+          $("#login").hidden = true;
+          $("#app").hidden = false;
+          list();
+        } else
+          $("#err").textContent =
+            "That username or password doesn't match. Check the demo login below.";
+      };
+      $("#out").onclick = () => {
+        $("#app").hidden = true;
+        $("#login").hidden = false;
+        $("#p").value = "";
+      };
 
-/* ============ Login ============ */
-$("#loginForm").onsubmit=e=>{e.preventDefault();
-  if($("#u").value.trim()==="asha"&&$("#p").value==="Match@123"){$("#login").hidden=true;$("#app").hidden=false;list()}
-  else $("#err").textContent="That username or password doesn't match. Check the demo login below."};
-$("#out").onclick=()=>{$("#app").hidden=true;$("#login").hidden=false;$("#p").value=""};
-
-/* ============ Dashboard ============ */
-function list(){
-  S.cur=null;
-  const counts=s=>C.filter(c=>c.status===s).length;
-  const rows=C.filter(c=>(S.filter==="All"||c.status===S.filter)&&(c.first+" "+c.last+" "+c.city).toLowerCase().includes(S.q.toLowerCase()));
-  $("#main").innerHTML=`
+      /* ============ Dashboard ============ */
+      function list() {
+        S.cur = null;
+        const counts = (s) => C.filter((c) => c.status === s).length;
+        const rows = C.filter(
+          (c) =>
+            (S.filter === "All" || c.status === S.filter) &&
+            (c.first + " " + c.last + " " + c.city)
+              .toLowerCase()
+              .includes(S.q.toLowerCase()),
+        );
+        $("#main").innerHTML = `
    <h1>Good morning, Asha</h1><p class="muted">You have ${C.length} customers.</p>
-   <div class="stats">${STATUSES.map(s=>`<span class="pill s-${sClass(s)}">${s} ${counts(s)}</span>`).join("")}</div>
+   <div class="stats">${STATUSES.map((s) => `<span class="pill s-${sClass(s)}">${s} ${counts(s)}</span>`).join("")}</div>
    <div class="tools"><input id="q" placeholder="Search by name or city" value="${S.q}" aria-label="Search customers">
-    <div class="chips">${["All",...STATUSES].map(s=>`<button class="chip" aria-pressed="${S.filter===s}" data-f="${s}">${s}</button>`).join("")}</div></div>
+    <div class="chips">${["All", ...STATUSES].map((s) => `<button class="chip" aria-pressed="${S.filter === s}" data-f="${s}">${s}</button>`).join("")}</div></div>
    <div class="list">
     <div class="row head"><span>Name</span><span>Age</span><span>City</span><span>Marital status</span><span>Status</span></div>
-    ${rows.length?rows.map(c=>`<button class="row" data-id="${c.id}">
+    ${
+      rows.length
+        ? rows
+            .map(
+              (c) => `<button class="row" data-id="${c.id}">
       <span class="who"><span class="av">${ini(c)}</span>${c.first} ${c.last}</span>
       <span class="c-age">${age(c.dob)}</span><span class="c-city">${c.city}</span><span class="c-ms">${c.marital}</span>
-      <span><span class="pill s-${sClass(c.status)}">${c.status}</span></span></button>`).join("")
-     :`<div class="empty"><h3>No customers match</h3><p class="muted">Clear the search or pick another status.</p></div>`}
+      <span><span class="pill s-${sClass(c.status)}">${c.status}</span></span></button>`,
+            )
+            .join("")
+        : `<div class="empty"><h3>No customers match</h3><p class="muted">Clear the search or pick another status.</p></div>`
+    }
    </div>`;
-  const q=$("#q");q.oninput=()=>{S.q=q.value;const pos=q.selectionStart;list();const n=$("#q");n.focus();n.setSelectionRange(pos,pos)};
-  document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{S.filter=b.dataset.f;list()});
-  document.querySelectorAll(".row[data-id]").forEach(b=>b.onclick=()=>{S.tab="profile";detail(b.dataset.id)});
-}
+        const q = $("#q");
+        q.oninput = () => {
+          S.q = q.value;
+          const pos = q.selectionStart;
+          list();
+          const n = $("#q");
+          n.focus();
+          n.setSelectionRange(pos, pos);
+        };
+        document.querySelectorAll("[data-f]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              S.filter = b.dataset.f;
+              list();
+            }),
+        );
+        document.querySelectorAll(".row[data-id]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              S.tab = "profile";
+              detail(b.dataset.id);
+            }),
+        );
+      }
 
-/* ============ Customer detail ============ */
-function detail(id){
-  S.cur=id;const c=C.find(x=>x.id===id);const i=STATUSES.indexOf(c.status);
-  const g=(t,pairs)=>`<section class="group"><h3>${t}</h3><dl>${pairs.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl></section>`;
-  const tabs=[["profile","Profile"],["matches","Matches ("+MATCHES[c.gender].length+")"],["notes","Notes ("+(S.notes[id]||[]).length+")"]];
-  let body="";
-  if(S.tab==="profile") body=`<div class="groups">
-    ${g("Basics",[["Gender",c.gender],["Date of birth",c.dob+" (age "+age(c.dob)+")"],["Height",c.height+" cm"],["Marital status",c.marital],["Location",c.city+", "+c.country]])}
-    ${g("Education and career",[["College",c.college],["Degree",c.degree],["Company",c.company],["Designation",c.designation],["Income",c.income+" LPA"]])}
-    ${g("Family and background",[["Religion",c.religion],["Caste",c.caste],["Languages",c.languages],["Siblings",c.siblings],["Family type",c.family]])}
-    ${g("Values and lifestyle",[["Want kids",c.kids],["Open to relocate",c.relocate],["Open to pets",c.pets],["Diet",c.diet]])}
-    ${g("Contact",[["Email",c.email],["Phone",c.phone]])}</div>`;
-  if(S.tab==="matches") body=MATCHES[c.gender].map((m,k)=>matchCard(c,m,k)).join("");
-  if(S.tab==="notes") body=`<div class="notebox"><label>Add a note<textarea id="nt" rows="3" placeholder="What came up in the call?"></textarea></label><div><button class="btn primary" id="saveNote">Save note</button></div></div>
-    ${(S.notes[id]||[]).map(n=>`<div class="note"><small>${n.t}</small><p>${n.x}</p></div>`).join("")||`<p class="muted">No notes yet. Add the first one after your next call.</p>`}`;
-  $("#main").innerHTML=`
+      /* ============ Customer detail ============ */
+      function detail(id) {
+        S.cur = id;
+        const c = C.find((x) => x.id === id);
+        const i = STATUSES.indexOf(c.status);
+        const g = (t, pairs) =>
+          `<section class="group"><h3>${t}</h3><dl>${pairs.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl></section>`;
+        const tabs = [
+          ["profile", "Profile"],
+          ["matches", "Matches (" + MATCHES[c.gender].length + ")"],
+          ["notes", "Notes (" + (S.notes[id] || []).length + ")"],
+        ];
+        let body = "";
+        if (S.tab === "profile")
+          body = `<div class="groups">
+    ${g("Basics", [
+      ["Gender", c.gender],
+      ["Date of birth", c.dob + " (age " + age(c.dob) + ")"],
+      ["Height", c.height + " cm"],
+      ["Marital status", c.marital],
+      ["Location", c.city + ", " + c.country],
+    ])}
+    ${g("Education and career", [
+      ["College", c.college],
+      ["Degree", c.degree],
+      ["Company", c.company],
+      ["Designation", c.designation],
+      ["Income", c.income + " LPA"],
+    ])}
+    ${g("Family and background", [
+      ["Religion", c.religion],
+      ["Caste", c.caste],
+      ["Languages", c.languages],
+      ["Siblings", c.siblings],
+      ["Family type", c.family],
+    ])}
+    ${g("Values and lifestyle", [
+      ["Want kids", c.kids],
+      ["Open to relocate", c.relocate],
+      ["Open to pets", c.pets],
+      ["Diet", c.diet],
+    ])}
+    ${g("Contact", [
+      ["Email", c.email],
+      ["Phone", c.phone],
+    ])}</div>`;
+        if (S.tab === "matches")
+          body = MATCHES[c.gender].map((m, k) => matchCard(c, m, k)).join("");
+        if (S.tab === "notes")
+          body = `<div class="notebox"><label>Add a note<textarea id="nt" rows="3" placeholder="What came up in the call?"></textarea></label><div><button class="btn primary" id="saveNote">Save note</button></div></div>
+    ${(S.notes[id] || []).map((n) => `<div class="note"><small>${n.t}</small><p>${n.x}</p></div>`).join("") || `<p class="muted">No notes yet. Add the first one after your next call.</p>`}`;
+        $("#main").innerHTML = `
    <button class="back" id="back">Back to customers</button>
    <div class="dhead"><div class="who"><span class="av">${ini(c)}</span><div><h1>${c.first} ${c.last}</h1>
      <span class="muted">${age(c.dob)} years old in ${c.city}</span> &nbsp;<span class="badge">Phone verified, ID verified</span></div></div>
-     <label style="min-width:210px">Journey status<select id="st">${STATUSES.map(s=>`<option ${s===c.status?"selected":""}>${s}</option>`).join("")}</select></label></div>
-   <div class="stepper" aria-label="Journey">${STATUSES.map((s,k)=>`<div class="step ${k<i?"done":k===i?"now":""}">${s}</div>`).join("")}</div>
-   <div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button class="tab" role="tab" aria-selected="${S.tab===k}" data-t="${k}">${l}</button>`).join("")}</div>${body}`;
-  $("#back").onclick=list;
-  $("#st").onchange=e=>{c.status=e.target.value;toast("Status updated to "+c.status);detail(id)};
-  document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;detail(id)});
-  if(S.tab==="notes")$("#saveNote").onclick=()=>{const v=$("#nt").value.trim();if(!v)return toast("Write something first");
-    (S.notes[id]=S.notes[id]||[]).unshift({t:new Date().toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"}),x:v});toast("Note saved");detail(id)};
-  if(S.tab==="matches")document.querySelectorAll("[data-send]").forEach(b=>b.onclick=()=>sendModal(c,+b.dataset.send));
-  if(S.tab==="matches")document.querySelectorAll("[data-bd]").forEach(b=>b.onclick=()=>{const k=b.dataset.bd;S.open[k]=!S.open[k];detail(id)});
-}
+     <label style="min-width:210px">Journey status<select id="st">${STATUSES.map((s) => `<option ${s === c.status ? "selected" : ""}>${s}</option>`).join("")}</select></label></div>
+   <div class="stepper" aria-label="Journey">${STATUSES.map((s, k) => `<div class="step ${k < i ? "done" : k === i ? "now" : ""}">${s}</div>`).join("")}</div>
+   <div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button class="tab" role="tab" aria-selected="${S.tab === k}" data-t="${k}">${l}</button>`).join("")}</div>${body}`;
+        $("#back").onclick = list;
+        $("#st").onchange = (e) => {
+          c.status = e.target.value;
+          toast("Status updated to " + c.status);
+          detail(id);
+        };
+        document.querySelectorAll("[data-t]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              S.tab = b.dataset.t;
+              detail(id);
+            }),
+        );
+        if (S.tab === "notes")
+          $("#saveNote").onclick = () => {
+            const v = $("#nt").value.trim();
+            if (!v) return toast("Write something first");
+            (S.notes[id] = S.notes[id] || []).unshift({
+              t: new Date().toLocaleString("en-IN", {
+                day: "numeric",
+                month: "short",
+                hour: "numeric",
+                minute: "2-digit",
+              }),
+              x: v,
+            });
+            toast("Note saved");
+            detail(id);
+          };
+        if (S.tab === "matches")
+          document
+            .querySelectorAll("[data-send]")
+            .forEach((b) => (b.onclick = () => sendModal(c, +b.dataset.send)));
+        if (S.tab === "matches")
+          document.querySelectorAll("[data-bd]").forEach(
+            (b) =>
+              (b.onclick = () => {
+                const k = b.dataset.bd;
+                S.open[k] = !S.open[k];
+                detail(id);
+              }),
+          );
+      }
 
-function matchCard(c,m,k){
-  const key=c.id+"-"+k, sent=S.sent[key];
-  return `<article class="match"><div class="ring" style="--p:${m.score}"><b>${m.score}</b></div><div>
-   <div class="mtop"><h3>${m.name}</h3><span class="tier t-${m.tier}">${m.tier==="High"?"High potential":m.tier==="Good"?"Good match":"Worth a look"}</span></div>
+      function matchCard(c, m, k) {
+        const key = c.id + "-" + k,
+          sent = S.sent[key];
+        return `<article class="match"><div class="ring" style="--p:${m.score}"><b>${m.score}</b></div><div>
+   <div class="mtop"><h3>${m.name}</h3><span class="tier t-${m.tier}">${m.tier === "High" ? "High potential" : m.tier === "Good" ? "Good match" : "Worth a look"}</span></div>
    <div class="facts"><span>${m.age} years</span><span>${m.city}</span><span>${m.role}</span><span>${m.height} cm</span></div>
-   <div class="fit">${m.fit.map(([t,x])=>`<span class="${t}">${x}</span>`).join("")}</div>
+   <div class="fit">${m.fit.map(([t, x]) => `<span class="${t}">${x}</span>`).join("")}</div>
    <div class="why"><b>Why this match.</b> ${m.why}</div>
-   ${S.open[key]?`<div class="bars">${m.bd.map(([n,v])=>`<div class="bar"><span>${n}</span><i><u style="width:${v}%"></u></i><span>${v}</span></div>`).join("")}</div>`:""}
-   <div class="acts"><button class="btn" data-bd="${key}">${S.open[key]?"Hide":"Show"} score breakdown</button>
-   <button class="btn primary" data-send="${k}" ${sent?"disabled":""}>${sent?"Sent":"Send match"}</button></div></div></article>`;
-}
+   ${S.open[key] ? `<div class="bars">${m.bd.map(([n, v]) => `<div class="bar"><span>${n}</span><i><u style="width:${v}%"></u></i><span>${v}</span></div>`).join("")}</div>` : ""}
+   <div class="acts"><button class="btn" data-bd="${key}">${S.open[key] ? "Hide" : "Show"} score breakdown</button>
+   <button class="btn primary" data-send="${k}" ${sent ? "disabled" : ""}>${sent ? "Sent" : "Send match"}</button></div></div></article>`;
+      }
 
-/* ============ Send Match modal ============ */
-function sendModal(c,k){
-  const m=MATCHES[c.gender][k],key=c.id+"-"+k;
-  $("#modalRoot").innerHTML=`<div class="scrim" id="scrim"><div class="modal" role="dialog" aria-modal="true" aria-label="Send match">
+      /* ============ Send Match modal ============ */
+      function sendModal(c, k) {
+        const m = MATCHES[c.gender][k],
+          key = c.id + "-" + k;
+        $("#modalRoot").innerHTML =
+          `<div class="scrim" id="scrim"><div class="modal" role="dialog" aria-modal="true" aria-label="Send match">
    <h2>Send ${m.name} to ${c.first}</h2>
    <label>To<input value="${c.email}" readonly></label>
    <label>Subject<input value="A match I think you'll like, ${c.first}" id="sub"></label>
    <label>Message<textarea rows="6" id="msg">Hi ${c.first}, I came across someone I think you'd enjoy meeting. ${m.name} is a ${m.role} based in ${m.city}. ${m.why} I've put a short profile below. Tell me what you think and I'll set up an introduction.</textarea></label>
    <div class="sum"><strong>${m.name}</strong><br>${m.age} years, ${m.city}<br>${m.role}, ${m.edu}<br>${m.height} cm, speaks ${m.langs}</div>
    <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" id="cx">Cancel</button><button class="btn primary" id="go">Send match</button></div></div></div>`;
-  const close=()=>$("#modalRoot").innerHTML="";
-  $("#cx").onclick=close;$("#scrim").onclick=e=>{if(e.target.id==="scrim")close()};
-  $("#go").onclick=()=>{S.sent[key]=true;if(c.status==="Verified"||c.status==="Onboarded")c.status="Profile Shared";close();toast("Match sent to "+c.first);detail(c.id)};
-  $("#msg").focus();
-}
-document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#modalRoot").innerHTML=""});
-</script>
-</body>
+        const close = () => ($("#modalRoot").innerHTML = "");
+        $("#cx").onclick = close;
+        $("#scrim").onclick = (e) => {
+          if (e.target.id === "scrim") close();
+        };
+        $("#go").onclick = () => {
+          S.sent[key] = true;
+          if (c.status === "Verified" || c.status === "Onboarded")
+            c.status = "Profile Shared";
+          close();
+          toast("Match sent to " + c.first);
+          detail(c.id);
+        };
+        $("#msg").focus();
+      }
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") $("#modalRoot").innerHTML = "";
+      });
+    </script>
+  </body>
 </html>
