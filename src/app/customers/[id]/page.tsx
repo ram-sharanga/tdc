@@ -2,16 +2,29 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { connection } from "next/server";
 import { notFound } from "next/navigation";
-import { getCustomer, getMatches } from "@/lib/repo";
+import {
+  getCustomer,
+  getMatches,
+  listNotes,
+  listSentMatchIds,
+} from "@/lib/repo";
 import { age } from "@/lib/age-helper";
 import InfoGroup from "@/components/InfoGroup";
 import CustomerView from "@/components/CustomerView";
+import { requireSession } from "@/lib/session";
 
 async function CustomerData({ params }: { params: Promise<{ id: string }> }) {
   await connection();
+  const session = await requireSession();
   const { id } = await params;
-  const c = getCustomer(id);
+
+  const c = await getCustomer(id, session.matchmakerId);
   if (!c) notFound();
+
+  const [notes, sentIds] = await Promise.all([
+    listNotes(c.id),
+    listSentMatchIds(c.id),
+  ]);
 
   const profile = (
     <div className="groups">
@@ -70,6 +83,8 @@ async function CustomerData({ params }: { params: Promise<{ id: string }> }) {
       customer={{ ...c, age: age(c.dob) }}
       profile={profile}
       matches={getMatches(c)}
+      initialNotes={notes}
+      initialSentIds={sentIds}
     />
   );
 }

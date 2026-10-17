@@ -1,6 +1,6 @@
-import type { Customer } from "@/types/profile";
+import type { CustomerSeed } from "@/types/profile";
 
-export const customers: Customer[] = [
+export const customers: CustomerSeed[] = [
   {
     id: "c1",
     first: "Priya",

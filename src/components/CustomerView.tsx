@@ -12,6 +12,7 @@ import NotesPanel from "@/components/NotesPanel";
 import type { MatchResult } from "@/types/profile";
 import MatchCard from "@/components/MatchCard";
 import SendMatchModal from "@/components/SendMatchModal";
+import { apiFetch } from "@/lib/client-api";
 
 type Tab = "profile" | "matches" | "notes";
 
@@ -19,49 +20,72 @@ export default function CustomerView({
   customer,
   profile,
   matches,
+  initialNotes,
+  initialSentIds,
 }: {
   customer: CustomerRow;
   profile: ReactNode;
   matches: MatchResult[];
+  initialNotes: Note[];
+  initialSentIds: string[];
 }) {
   const toast = useToast();
   const [tab, setTab] = useState<Tab>("profile");
   const [stage, setStage] = useState<Stage>(customer.stage); // initial value comes from the server
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [sent, setSent] = useState<Set<string>>(new Set()); // ids of matches already sent
+  const [notes, setNotes] = useState<Note[]>(initialNotes);
+  const [sent, setSent] = useState<Set<string>>(new Set(initialSentIds));
   const [sending, setSending] = useState<MatchResult | null>(null); // which match's modal is open, or none
 
-  function confirmSend(match: MatchResult) {
-    // New Set every time: React detects change by identity, so mutating the old Set wouldn't re-render.
-    setSent((prev) => new Set(prev).add(match.id));
+  const fail = (e: unknown) =>
+    toast(e instanceof Error ? e.message : "Something went wrong");
 
-    // Sharing the first match updates customer stage.
-    if (stage === "Onboarded" || stage === "Verified")
-      setStage("Profile Shared");
-    setSending(null);
-    toast(`Match sent to ${customer.first}`);
+  async function changeStage(next: Stage) {
+    try {
+      await apiFetch(`/api/customers/${customer.id}/stage`, {
+        method: "PATCH",
+        body: JSON.stringify({ stage: next }),
+      });
+      setStage(next);
+      toast(`Stage updated to ${next}`);
+    } catch (e) {
+      fail(e);
+    }
   }
 
-  function changeStage(next: Stage) {
-    setStage(next);
-    toast(`Stage updated to ${next}`);
+  async function addNote(text: string): Promise<boolean> {
+    try {
+      const note = await apiFetch<Note>(`/api/customers/${customer.id}/notes`, {
+        method: "POST",
+        body: JSON.stringify({ text }),
+      });
+      setNotes((prev) => [note, ...prev]);
+      toast("Note saved");
+      return true;
+    } catch (e) {
+      fail(e);
+      return false;
+    }
   }
 
-  function addNote(text: string) {
-    setNotes((prev) => [
-      {
-        id: crypto.randomUUID(),
-        at: new Date().toLocaleString("en-IN", {
-          day: "numeric",
-          month: "short",
-          hour: "numeric",
-          minute: "2-digit",
-        }),
-        text,
-      },
-      ...prev,
-    ]);
-    toast("Note saved");
+  async function confirmSend(
+    match: MatchResult,
+    email: { subject: string; body: string },
+  ) {
+    try {
+      const res = await apiFetch<{ stage: Stage }>(
+        `/api/customers/${customer.id}/sent-matches`,
+        {
+          method: "POST",
+          body: JSON.stringify({ matchId: match.id, ...email }),
+        },
+      );
+      setSent((prev) => new Set(prev).add(match.id));
+      setStage(res.stage);
+      setSending(null);
+      toast(`Match sent to ${customer.first}`);
+    } catch (e) {
+      fail(e);
+    }
   }
 
   const tabs: [Tab, string][] = [
@@ -89,7 +113,6 @@ export default function CustomerView({
         </div>
         <label style={{ minWidth: 210 }}>
           Journey stage
-          {/* Controlled select: value comes from state, onChange updates it */}
           <select
             value={stage}
             onChange={(e) => changeStage(e.target.value as Stage)}
@@ -134,7 +157,7 @@ export default function CustomerView({
           customer={customer}
           match={sending}
           onClose={() => setSending(null)}
-          onConfirm={() => confirmSend(sending)}
+          onConfirm={(email) => confirmSend(sending, email)}
         />
       )}
       {tab === "notes" && <NotesPanel notes={notes} onAdd={addNote} />}

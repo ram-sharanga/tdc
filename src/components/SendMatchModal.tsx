@@ -12,9 +12,16 @@ export default function SendMatchModal({
   customer: Customer;
   match: MatchResult;
   onClose: () => void;
-  onConfirm: (email: { subject: string; body: string }) => void;
+  onConfirm: (email: { subject: string; body: string }) => Promise<void>;
 }) {
   const [email, setEmail] = useState(() => draftEmail(customer, match));
+  const [busy, setBusy] = useState(false);
+
+  async function confirm() {
+    setBusy(true);
+    await onConfirm({ subject, body });
+    setBusy(false);
+  }
 
   const { subject, body } = email;
 
@@ -82,11 +89,8 @@ export default function SendMatchModal({
           <button className="btn" onClick={onClose}>
             Cancel
           </button>
-          <button
-            className="btn primary"
-            onClick={() => onConfirm({ subject, body })}
-          >
-            Send match
+          <button className="btn primary" disabled={busy} onClick={confirm}>
+            {busy ? "Sending..." : "Send match"}
           </button>
         </div>
       </div>

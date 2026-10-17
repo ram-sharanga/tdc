@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { formatWhen } from "@/lib/format";
 import type { Note } from "@/types/profile";
 
 export default function NotesPanel({
@@ -7,15 +8,18 @@ export default function NotesPanel({
   onAdd,
 }: {
   notes: Note[];
-  onAdd: (text: string) => void;
+  onAdd: (text: string) => Promise<boolean>;
 }) {
   const [draft, setDraft] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  function save() {
+  async function save() {
     const text = draft.trim();
-    if (!text) return;
-    onAdd(text);
-    setDraft("");
+    if (!text || saving) return;
+    setSaving(true);
+    const ok = await onAdd(text);
+    setSaving(false);
+    if (ok) setDraft("");
   }
 
   return (
@@ -31,8 +35,8 @@ export default function NotesPanel({
           />
         </label>
         <div>
-          <button className="btn primary" onClick={save}>
-            Save note
+          <button className="btn primary" onClick={save} disabled={saving}>
+            {saving ? "Saving..." : "Save note"}
           </button>
         </div>
       </div>
@@ -44,7 +48,7 @@ export default function NotesPanel({
       )}
       {notes.map((n) => (
         <div className="note" key={n.id}>
-          <small>{n.at}</small>
+          <small>{formatWhen(n.createdAt)}</small>
           <p>{n.text}</p>
         </div>
       ))}

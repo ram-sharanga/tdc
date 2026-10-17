@@ -42,13 +42,16 @@ export interface Customer {
   pets: YesNoMaybe;
   diet: string;
   family: string;
+  matchmakerId: string;
 }
 
 export type CustomerRow = Customer & { age: number };
 
+export type CustomerSeed = Omit<Customer, "matchmakerId">;
+
 export interface Note {
   id: string;
-  at: string;
+  createdAt: string;
   text: string;
 }
 
@@ -78,4 +81,11 @@ export interface MatchResult {
   fit: FitChip[];
   breakdown: BreakdownItem[];
   why: string; // natural-language explanation
+}
+
+export interface Matchmaker {
+  id: string;
+  name: string;
+  username: string;
+  passwordHash: string;
 }
