@@ -96,3 +96,5 @@ export interface EmailTemplate {
   subject: string;
   body: string;
 }
+
+export type Person = Omit<Customer, "stage" | "matchmakerId">;

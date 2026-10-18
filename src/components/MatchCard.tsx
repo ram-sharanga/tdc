@@ -13,10 +13,14 @@ export default function MatchCard({
   match,
   sent,
   onSend,
+  why,
+  ai,
 }: {
   match: MatchResult;
   sent: boolean;
   onSend: () => void;
+  why: string;
+  ai: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -47,7 +51,12 @@ export default function MatchCard({
         </div>
 
         <div className="why">
-          <b>Why this match.</b> {match.why}
+          <b>Why this match.</b> {why}
+          {ai && (
+            <small className="muted" style={{ display: "block", marginTop: 6 }}>
+              Explained by AI from the score breakdown
+            </small>
+          )}
         </div>
 
         {open && (

@@ -1,6 +1,5 @@
-export function age(dob: string): number {
+export function age(dob: string, today: Date = new Date()): number {
   const birth = new Date(dob);
-  const today = new Date();
 
   // 2026 - 1996 = 30.
   let years = today.getFullYear() - birth.getFullYear();

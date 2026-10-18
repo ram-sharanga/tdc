@@ -12,6 +12,10 @@ import {
   matchesForMaleCustomers,
   matchesForFemaleCustomers,
 } from "@/data/matches";
+import candidates from "@/data/candidates.json";
+import type { Person } from "@/types/profile";
+import { rankMatches } from "./matching";
+import { toMatchResult } from "./match-view";
 
 const customers = () => db.collection("customers");
 
@@ -152,10 +156,11 @@ export async function recordSentMatch(
   });
 }
 
+const POOL = candidates as unknown as Person[];
+
 export function getMatches(customer: Customer): MatchResult[] {
-  return customer.gender === "Female"
-    ? matchesForFemaleCustomers
-    : matchesForMaleCustomers;
+  const today = new Date();
+  return rankMatches(customer, POOL, today).map((s) => toMatchResult(s, today));
 }
 
 import type { EmailTemplate } from "@/types/profile";
@@ -234,4 +239,40 @@ export async function deleteTemplate(
   if (!ref) return false;
   await ref.delete();
   return true;
+}
+
+export async function getCachedExplanations(
+  customerId: string,
+): Promise<Record<string, { sig: string; text: string }>> {
+  const snap = await customers()
+    .doc(customerId)
+    .collection("explanations")
+    .get();
+  return Object.fromEntries(
+    snap.docs.map((d) => [
+      d.id,
+      { sig: d.data().sig as string, text: d.data().text as string },
+    ]),
+  );
+}
+
+export async function saveExplanations(
+  customerId: string,
+  items: Record<string, { sig: string; text: string }>,
+) {
+  const col = customers().doc(customerId).collection("explanations");
+  const batch = db.batch();
+  for (const [id, v] of Object.entries(items))
+    batch.set(col.doc(id), { ...v, createdAt: new Date() }); // doc id = candidate id
+  await batch.commit();
+}
+
+export async function getTemplate(
+  id: string,
+  matchmakerId: string,
+): Promise<EmailTemplate | undefined> {
+  const ref = await ownedTemplate(id, matchmakerId); // ownership check, same helper as update/delete
+  if (!ref) return undefined;
+  const d = (await ref.get()).data()!;
+  return { id, name: d.name, subject: d.subject, body: d.body };
 }

@@ -1,5 +1,5 @@
 "use client";
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import {
   STAGES,
   type Stage,
@@ -39,9 +39,22 @@ export default function CustomerView({
   const [notes, setNotes] = useState<Note[]>(initialNotes);
   const [sent, setSent] = useState<Set<string>>(new Set(initialSentIds));
   const [sending, setSending] = useState<MatchResult | null>(null); // which match's modal is open, or none
+  const [aiWhy, setAiWhy] = useState<Record<string, string>>({});
+  const requested = useRef(false);
 
   const fail = (e: unknown) =>
     toast(e instanceof Error ? e.message : "Something went wrong");
+
+  useEffect(() => {
+    if (tab !== "matches" || requested.current) return;
+    requested.current = true;
+    apiFetch<Record<string, string>>(
+      `/api/customers/${customer.id}/explanations`,
+      { method: "POST" },
+    )
+      .then(setAiWhy)
+      .catch(() => {});
+  }, [tab, customer.id]);
 
   async function changeStage(next: Stage) {
     try {
@@ -150,6 +163,8 @@ export default function CustomerView({
           <MatchCard
             key={m.id}
             match={m}
+            why={aiWhy[m.id] ?? m.why}
+            ai={m.id in aiWhy}
             sent={sent.has(m.id)}
             onSend={() => setSending(m)}
           />

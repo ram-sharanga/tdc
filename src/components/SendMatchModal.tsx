@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import type { Customer, EmailTemplate, MatchResult } from "@/types/profile";
 import { draftEmail } from "@/lib/draft-email";
 import { DEFAULT_TEMPLATE } from "@/lib/templates";
+import { apiFetch } from "@/lib/client-api";
+import { useToast } from "@/components/Toast";
 
 interface Props {
   customer: Customer;
@@ -27,6 +29,9 @@ export default function SendMatchModal({
   const [subject, setSubject] = useState(first.subject);
   const [body, setBody] = useState(first.body);
   const [busy, setBusy] = useState(false);
+  const toast = useToast();
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiNote, setAiNote] = useState("");
 
   function pickTemplate(id: string) {
     const t = options.find((x) => x.id === id);
@@ -41,6 +46,32 @@ export default function SendMatchModal({
     setBusy(true);
     await onConfirm({ subject, body });
     setBusy(false);
+  }
+
+  async function personalize() {
+    setAiBusy(true);
+    setAiNote("");
+    try {
+      const d = await apiFetch<{
+        subject: string;
+        body: string;
+        source: "ai" | "template";
+      }>(`/api/customers/${customer.id}/draft`, {
+        method: "POST",
+        body: JSON.stringify({ matchId: match.id, templateId }),
+      });
+      setSubject(d.subject);
+      setBody(d.body);
+      setAiNote(
+        d.source === "ai"
+          ? "Personalized by AI. Please read it before sending."
+          : "AI is unavailable right now, so this is your template filled in.",
+      );
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Could not personalize");
+    } finally {
+      setAiBusy(false);
+    }
   }
 
   useEffect(() => {
@@ -67,7 +98,6 @@ export default function SendMatchModal({
         <h2>
           Send {match.name} to {customer.first}
         </h2>
-
         <label>
           Template
           <select
@@ -82,10 +112,17 @@ export default function SendMatchModal({
             ))}
           </select>
         </label>
+        <button className="btn" onClick={personalize} disabled={aiBusy || busy}>
+          {aiBusy ? "Writing..." : "Personalize with AI"}
+        </button>{" "}
+        {aiNote && (
+          <p className="muted" style={{ fontSize: 13 }}>
+            {aiNote}
+          </p>
+        )}
         <p className="muted" style={{ fontSize: 13 }}>
           Switching templates replaces your edits.
         </p>
-
         <label>
           To
           <input value={customer.email} readOnly />
@@ -103,7 +140,6 @@ export default function SendMatchModal({
             autoFocus
           />
         </label>
-
         <div className="sum">
           <strong>{match.name}</strong>
           <br />
@@ -113,12 +149,15 @@ export default function SendMatchModal({
           <br />
           {match.height} cm, speaks {match.languages}
         </div>
-
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
           <button className="btn" onClick={onClose} disabled={busy}>
             Cancel
           </button>
-          <button className="btn primary" onClick={confirm} disabled={busy}>
+          <button
+            className="btn primary"
+            onClick={confirm}
+            disabled={busy || aiBusy}
+          >
             {busy ? "Sending..." : "Send match"}
           </button>
         </div>
