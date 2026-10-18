@@ -157,3 +157,81 @@ export function getMatches(customer: Customer): MatchResult[] {
     ? matchesForFemaleCustomers
     : matchesForMaleCustomers;
 }
+
+import type { EmailTemplate } from "@/types/profile";
+
+const templates = () => db.collection("templates");
+const MAX_TEMPLATES = 20;
+
+type TemplateFields = { name: string; subject: string; body: string };
+
+export async function listTemplates(
+  matchmakerId: string,
+): Promise<EmailTemplate[]> {
+  const snap = await templates()
+    .where("matchmakerId", "==", matchmakerId)
+    .get();
+  // Sort in code (oldest first). Sorting in the query would need a composite index.
+  return snap.docs
+    .sort(
+      (a, b) =>
+        (a.data().createdAt as Timestamp).toMillis() -
+        (b.data().createdAt as Timestamp).toMillis(),
+    )
+    .map((d) => ({
+      id: d.id,
+      name: d.data().name,
+      subject: d.data().subject,
+      body: d.data().body,
+    }));
+}
+
+export async function createTemplate(
+  matchmakerId: string,
+  input: TemplateFields,
+): Promise<EmailTemplate | "limit"> {
+  const existing = await templates()
+    .where("matchmakerId", "==", matchmakerId)
+    .count()
+    .get();
+  if (existing.data().count >= MAX_TEMPLATES) return "limit";
+  const now = new Date();
+  const ref = await templates().add({
+    ...input,
+    matchmakerId,
+    createdAt: now,
+    updatedAt: now,
+  });
+  return { id: ref.id, ...input };
+}
+
+// Returns undefined when the template doesn't exist OR belongs to someone else (same ownership rule as customers).
+async function ownedTemplate(id: string, matchmakerId: string) {
+  if (!isIdValidFormat(id)) return undefined;
+  const ref = templates().doc(id);
+  const snap = await ref.get();
+  return snap.exists && snap.data()?.matchmakerId === matchmakerId
+    ? ref
+    : undefined;
+}
+
+export async function updateTemplate(
+  id: string,
+  matchmakerId: string,
+  input: TemplateFields,
+): Promise<EmailTemplate | undefined> {
+  const ref = await ownedTemplate(id, matchmakerId);
+  if (!ref) return undefined;
+  await ref.update({ ...input, updatedAt: new Date() });
+  return { id, ...input };
+}
+
+export async function deleteTemplate(
+  id: string,
+  matchmakerId: string,
+): Promise<boolean> {
+  const ref = await ownedTemplate(id, matchmakerId);
+  if (!ref) return false;
+  await ref.delete();
+  return true;
+}

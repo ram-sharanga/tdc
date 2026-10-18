@@ -1,15 +1,23 @@
-import type { Customer, MatchResult } from "@/types/profile";
+import type { Customer, EmailTemplate, MatchResult } from "@/types/profile";
+import { fillTemplate, type TemplateVars } from "./templates";
 
-// hardcoded now, later this calls the AI (asynchronously)
 export function draftEmail(
   customer: Customer,
   match: MatchResult,
-): { subject: string; body: string } {
+  template: EmailTemplate,
+  matchmakerName: string,
+) {
+  const vars: TemplateVars = {
+    customer_first: customer.first,
+    candidate_name: match.name,
+    candidate_age: String(match.age),
+    candidate_city: match.city,
+    candidate_role: match.role,
+    why: match.why,
+    matchmaker_name: matchmakerName,
+  };
   return {
-    subject: `A match I think you'll like, ${customer.first}`,
-    body:
-      `Hi ${customer.first}, I came across someone I think you'd enjoy meeting. ` +
-      `${match.name} is a ${match.role} based in ${match.city}. ${match.why} ` +
-      `I've put a short profile below. Tell me what you think and I'll set up an introduction.`,
+    subject: fillTemplate(template.subject, vars),
+    body: fillTemplate(template.body, vars),
   };
 }

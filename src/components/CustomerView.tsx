@@ -9,7 +9,7 @@ import {
 import { useToast } from "@/components/Toast";
 import Stepper from "@/components/Stepper";
 import NotesPanel from "@/components/NotesPanel";
-import type { MatchResult } from "@/types/profile";
+import type { EmailTemplate, MatchResult } from "@/types/profile";
 import MatchCard from "@/components/MatchCard";
 import SendMatchModal from "@/components/SendMatchModal";
 import { apiFetch } from "@/lib/client-api";
@@ -22,12 +22,16 @@ export default function CustomerView({
   matches,
   initialNotes,
   initialSentIds,
+  templates,
+  matchmakerName,
 }: {
   customer: CustomerRow;
   profile: ReactNode;
   matches: MatchResult[];
   initialNotes: Note[];
   initialSentIds: string[];
+  templates: EmailTemplate[];
+  matchmakerName: string;
 }) {
   const toast = useToast();
   const [tab, setTab] = useState<Tab>("profile");
@@ -156,6 +160,8 @@ export default function CustomerView({
           key={sending.id}
           customer={customer}
           match={sending}
+          templates={templates}
+          matchmakerName={matchmakerName}
           onClose={() => setSending(null)}
           onConfirm={(email) => confirmSend(sending, email)}
         />

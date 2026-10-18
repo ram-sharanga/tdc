@@ -6,6 +6,7 @@ import {
   getMatches,
   listNotes,
   listSentMatchIds,
+  listTemplates,
 } from "@/lib/repo";
 import { age } from "@/lib/age-helper";
 import InfoGroup from "@/components/InfoGroup";
@@ -19,9 +20,10 @@ async function CustomerData({ params }: { params: Promise<{ id: string }> }) {
   const c = await getCustomer(id, session.matchmakerId);
   if (!c) notFound();
 
-  const [notes, sentIds] = await Promise.all([
+  const [notes, sentIds, templates] = await Promise.all([
     listNotes(c.id),
     listSentMatchIds(c.id),
+    listTemplates(session.matchmakerId),
   ]);
 
   const profile = (
@@ -83,6 +85,8 @@ async function CustomerData({ params }: { params: Promise<{ id: string }> }) {
       matches={getMatches(c)}
       initialNotes={notes}
       initialSentIds={sentIds}
+      templates={templates}
+      matchmakerName={session.name}
     />
   );
 }

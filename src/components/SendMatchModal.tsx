@@ -1,29 +1,47 @@
 "use client";
 import { useEffect, useState } from "react";
-import type { Customer, MatchResult } from "@/types/profile";
+import type { Customer, EmailTemplate, MatchResult } from "@/types/profile";
 import { draftEmail } from "@/lib/draft-email";
+import { DEFAULT_TEMPLATE } from "@/lib/templates";
+
+interface Props {
+  customer: Customer;
+  match: MatchResult;
+  templates: EmailTemplate[];
+  matchmakerName: string;
+  onClose: () => void;
+  onConfirm: (email: { subject: string; body: string }) => Promise<void>;
+}
 
 export default function SendMatchModal({
   customer,
   match,
+  templates,
+  matchmakerName,
   onClose,
   onConfirm,
-}: {
-  customer: Customer;
-  match: MatchResult;
-  onClose: () => void;
-  onConfirm: (email: { subject: string; body: string }) => Promise<void>;
-}) {
-  const [email, setEmail] = useState(() => draftEmail(customer, match));
+}: Props) {
+  const options = [DEFAULT_TEMPLATE, ...templates];
+  const [templateId, setTemplateId] = useState(options[0].id);
+  const first = draftEmail(customer, match, options[0], matchmakerName);
+  const [subject, setSubject] = useState(first.subject);
+  const [body, setBody] = useState(first.body);
   const [busy, setBusy] = useState(false);
+
+  function pickTemplate(id: string) {
+    const t = options.find((x) => x.id === id);
+    if (!t) return; // can't happen with our own dropdown, but keeps TypeScript honest
+    const d = draftEmail(customer, match, t, matchmakerName);
+    setTemplateId(id);
+    setSubject(d.subject);
+    setBody(d.body);
+  }
 
   async function confirm() {
     setBusy(true);
     await onConfirm({ subject, body });
     setBusy(false);
   }
-
-  const { subject, body } = email;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -51,26 +69,37 @@ export default function SendMatchModal({
         </h2>
 
         <label>
+          Template
+          <select
+            value={templateId}
+            onChange={(e) => pickTemplate(e.target.value)}
+            disabled={busy}
+          >
+            {options.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p className="muted" style={{ fontSize: 13 }}>
+          Switching templates replaces your edits.
+        </p>
+
+        <label>
           To
           <input value={customer.email} readOnly />
         </label>
         <label>
           Subject
-          <input
-            value={subject}
-            onChange={(e) =>
-              setEmail((prev) => ({ ...prev, subject: e.target.value }))
-            }
-          />
+          <input value={subject} onChange={(e) => setSubject(e.target.value)} />
         </label>
         <label>
           Message
           <textarea
             rows={6}
             value={body}
-            onChange={(e) =>
-              setEmail((prev) => ({ ...prev, body: e.target.value }))
-            }
+            onChange={(e) => setBody(e.target.value)}
             autoFocus
           />
         </label>
@@ -86,10 +115,10 @@ export default function SendMatchModal({
         </div>
 
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-          <button className="btn" onClick={onClose}>
+          <button className="btn" onClick={onClose} disabled={busy}>
             Cancel
           </button>
-          <button className="btn primary" disabled={busy} onClick={confirm}>
+          <button className="btn primary" onClick={confirm} disabled={busy}>
             {busy ? "Sending..." : "Send match"}
           </button>
         </div>

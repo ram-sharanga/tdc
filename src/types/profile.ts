@@ -89,3 +89,10 @@ export interface Matchmaker {
   username: string;
   passwordHash: string;
 }
+
+export interface EmailTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  body: string;
+}
