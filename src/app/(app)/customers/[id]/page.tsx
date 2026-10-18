@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { connection } from "next/server";
 import { notFound } from "next/navigation";
 import {
   getCustomer,
@@ -14,7 +13,6 @@ import CustomerView from "@/components/CustomerView";
 import { requireSession } from "@/lib/session";
 
 async function CustomerData({ params }: { params: Promise<{ id: string }> }) {
-  await connection();
   const session = await requireSession();
   const { id } = await params;
 

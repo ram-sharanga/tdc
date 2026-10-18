@@ -1,18 +1,17 @@
 import "server-only";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { COOKIE_NAME, verifySession, type SessionPayload } from "./jwt";
 
-export interface SessionPayload {
-  matchmakerId: string;
-  name: string;
-}
+export type { SessionPayload };
 
-// temporary (auth is implemented in next feat)
-const STUB: SessionPayload = { matchmakerId: "m1", name: "Asha" };
-
-// null = not signed in - err 401
 export async function getSession(): Promise<SessionPayload | null> {
-  return STUB;
+  const token = (await cookies()).get(COOKIE_NAME)?.value;
+  return token ? verifySession(token) : null;
 }
 
 export async function requireSession(): Promise<SessionPayload> {
-  return STUB;
+  const session = await getSession();
+  if (!session) redirect("/login");
+  return session;
 }
