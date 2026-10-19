@@ -42,6 +42,7 @@ export default function CustomerView({
   const [aiWhy, setAiWhy] = useState<Record<string, string>>({});
   const [explained, setExplained] = useState(false); // true once the AI request has finished (success or not)
   const [aiNote, setAiNote] = useState(""); // why the AI text is missing, when it is
+  const [savingStage, setSavingStage] = useState(false);
   const requested = useRef(false);
   const loadingAi = tab === "matches" && !explained; // derived, not stored
 
@@ -64,15 +65,21 @@ export default function CustomerView({
   }, [tab, customer.id]);
 
   async function changeStage(next: Stage) {
+    if (savingStage) return; // ignore clicks while a save is still in flight
+    const previous = stage;
+    setStage(next); // optimistic: the screen updates immediately
+    setSavingStage(true);
     try {
       await apiFetch(`/api/customers/${customer.id}/stage`, {
         method: "PATCH",
         body: JSON.stringify({ stage: next }),
       });
-      setStage(next);
       toast(`Stage updated to ${next}`);
     } catch (e) {
+      setStage(previous); // the server said no, so put the old value back
       fail(e);
+    } finally {
+      setSavingStage(false);
     }
   }
 
@@ -140,6 +147,7 @@ export default function CustomerView({
           <select
             value={stage}
             onChange={(e) => changeStage(e.target.value as Stage)}
+            disabled={savingStage}
           >
             {STAGES.map((s) => (
               <option key={s}>{s}</option>

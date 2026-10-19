@@ -52,7 +52,7 @@ export async function explainMatches(
       { role: "system", content: SYSTEM },
       { role: "user", content: JSON.stringify(payload) },
     ],
-    { json: true, maxTokens: 120 * todo.length + 100, temperature: 0.4 },
+    { json: true, maxTokens: 250 * todo.length + 600, temperature: 0.4 },
   );
   if (!result.ok) return { items: out, reason: result.reason };
   const parsed = extractJson(result.text);

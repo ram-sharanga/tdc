@@ -56,6 +56,7 @@ export default function SendMatchModal({
         subject: string;
         body: string;
         source: "ai" | "template";
+        reason?: string;
       }>(`/api/customers/${customer.id}/draft`, {
         method: "POST",
         body: JSON.stringify({ matchId: match.id, templateId }),
@@ -65,7 +66,7 @@ export default function SendMatchModal({
       setAiNote(
         d.source === "ai"
           ? "Personalized by AI. Please read it before sending."
-          : "AI is unavailable right now, so this is your template filled in.",
+          : `AI unavailable (${d.reason ?? "unknown reason"}). This is your template filled in.`,
       );
     } catch (e) {
       toast(e instanceof Error ? e.message : "Could not personalize");

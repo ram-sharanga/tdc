@@ -45,7 +45,7 @@ export async function generateDraft(
         }),
       },
     ],
-    { json: true, maxTokens: 450, temperature: 0.7 },
+    { json: true, maxTokens: 1200, temperature: 0.7 },
   );
 
   if (!result.ok) return { ...base, source: "template", reason: result.reason };
