@@ -35,6 +35,8 @@ export async function chat(
   // Common mistake: pasting the full endpoint as the base URL. Accept both.
   const url = base.endsWith("/chat/completions") ? base : `${base}/chat/completions`;
 
+  const reasoning = model.includes("gpt-oss"); // models that think before answering
+
   const post = (jsonMode: boolean) =>
     fetch(url, {
       method: "POST",
@@ -43,7 +45,10 @@ export async function chat(
         model,
         messages,
         temperature: opts.temperature ?? 0.4,
-        max_tokens: opts.maxTokens ?? 400,
+        // max_tokens is a CAP, not a target, so generous headroom costs nothing.
+        // Reasoning models spend part of it on hidden "thinking"; if the thinking uses it all, the answer is empty.
+        max_tokens: (opts.maxTokens ?? 400) + (reasoning ? 2500 : 0),
+        ...(reasoning ? { reasoning_effort: "low" } : {}),
         ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
       }),
       signal: AbortSignal.timeout(12000), // never let a slow provider hang the request
@@ -62,8 +67,13 @@ export async function chat(
     }
 
     const data = await res.json();
-    const text = data?.choices?.[0]?.message?.content;
-    if (typeof text !== "string" || !text.trim()) return { ok: false, reason: "empty reply from the model" };
+    const choice = data?.choices?.[0];
+    const text = choice?.message?.content;
+    if (typeof text !== "string" || !text.trim()) {
+      console.error("[ai] empty reply", JSON.stringify(data).slice(0, 600)); // full shape goes to the server log
+      const finish = choice?.finish_reason ? ` (finish_reason: ${choice.finish_reason})` : "";
+      return { ok: false, reason: `empty reply from the model${finish}` };
+    }
     return { ok: true, text: text.trim() };
   } catch (e) {
     console.error("[ai] call failed", e);
