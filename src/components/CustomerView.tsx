@@ -40,7 +40,10 @@ export default function CustomerView({
   const [sent, setSent] = useState<Set<string>>(new Set(initialSentIds));
   const [sending, setSending] = useState<MatchResult | null>(null); // which match's modal is open, or none
   const [aiWhy, setAiWhy] = useState<Record<string, string>>({});
+  const [explained, setExplained] = useState(false); // true once the AI request has finished (success or not)
+  const [aiNote, setAiNote] = useState(""); // why the AI text is missing, when it is
   const requested = useRef(false);
+  const loadingAi = tab === "matches" && !explained; // derived, not stored
 
   const fail = (e: unknown) =>
     toast(e instanceof Error ? e.message : "Something went wrong");
@@ -48,12 +51,16 @@ export default function CustomerView({
   useEffect(() => {
     if (tab !== "matches" || requested.current) return;
     requested.current = true;
-    apiFetch<Record<string, string>>(
+    apiFetch<{ items: Record<string, string>; reason?: string }>(
       `/api/customers/${customer.id}/explanations`,
       { method: "POST" },
     )
-      .then(setAiWhy)
-      .catch(() => {});
+      .then((r) => {
+        setAiWhy(r.items);
+        setAiNote(r.reason ?? "");
+      })
+      .catch((e) => setAiNote(e instanceof Error ? e.message : "request failed"))
+      .finally(() => setExplained(true)); // built-in text stays when the AI is unavailable
   }, [tab, customer.id]);
 
   async function changeStage(next: Stage) {
@@ -158,6 +165,11 @@ export default function CustomerView({
       </div>
 
       {tab === "profile" && profile}
+      {tab === "matches" && explained && aiNote && (
+        <p className="ainote" style={{ marginBottom: 12 }}>
+          AI explanations unavailable: {aiNote}. Showing the built-in summary.
+        </p>
+      )}
       {tab === "matches" &&
         matches.map((m) => (
           <MatchCard
@@ -165,6 +177,7 @@ export default function CustomerView({
             match={m}
             why={aiWhy[m.id] ?? m.why}
             ai={m.id in aiWhy}
+            loading={loadingAi}
             sent={sent.has(m.id)}
             onSend={() => setSending(m)}
           />

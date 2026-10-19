@@ -8,10 +8,6 @@ import type {
   Matchmaker,
   Stage,
 } from "@/types/profile";
-import {
-  matchesForMaleCustomers,
-  matchesForFemaleCustomers,
-} from "@/data/matches";
 import candidates from "@/data/candidates.json";
 import type { Person } from "@/types/profile";
 import { rankMatches } from "./matching";
@@ -116,23 +112,21 @@ export async function recordSentMatch(
   matchmakerId: string,
   input: { matchId: string; subject: string; body: string },
 ): Promise<SentResult> {
-  if (!isIdValidFormat(input.matchId) || !isIdValidFormat(input.matchId))
+  // Both ids end up inside a Firestore path, so both must be simple ids.
+  if (!isIdValidFormat(customerId) || !isIdValidFormat(input.matchId))
     return { ok: false, reason: "not_found" };
 
   const cRef = customers().doc(customerId);
   const sRef = cRef.collection("sentMatches").doc(input.matchId);
 
   return db.runTransaction(async (tx) => {
+    // All reads first, then all writes (a Firestore transaction rule).
     const [cSnap, sSnap] = await Promise.all([tx.get(cRef), tx.get(sRef)]);
 
-    if (!cSnap.exists) return { ok: false, reason: "not_found" };
-    if (sSnap.exists) return { ok: false, reason: "duplicate" };
-
-    if (!cSnap.exists || cSnap.data()?.matchmakerId !== matchmakerId) {
-      return { ok: false, reason: "not_found" };
-    }
-
-    if (sSnap.exists) return { ok: false, reason: "duplicate" };
+    // Ownership BEFORE anything else, so someone else's customer is indistinguishable from a missing one.
+    if (!cSnap.exists || cSnap.data()?.matchmakerId !== matchmakerId)
+      return { ok: false, reason: "not_found" } as const;
+    if (sSnap.exists) return { ok: false, reason: "duplicate" } as const;
 
     const current = cSnap.data()!.stage as Stage;
     const next: Stage =
@@ -140,10 +134,7 @@ export async function recordSentMatch(
         ? "Profile Shared"
         : current;
 
-    if (next !== current) {
-      tx.update(cRef, { stage: next });
-    }
-
+    if (next !== current) tx.update(cRef, { stage: next });
     tx.set(sRef, {
       matchId: input.matchId,
       subject: input.subject,
@@ -152,7 +143,7 @@ export async function recordSentMatch(
       sentBy: matchmakerId,
     });
 
-    return { ok: true, stage: next };
+    return { ok: true, stage: next } as const;
   });
 }
 

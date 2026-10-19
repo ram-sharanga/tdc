@@ -869,3 +869,9 @@ dd {
   font: 14px/1.5 var(--body);
   margin: 0;
 }
+
+/* ---- "Why this match" source label ---- */
+.whyhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
+.src { font-size: 12px; padding: 2px 10px; border-radius: 99px; background: #fff; color: var(--mute); border: 1px solid var(--line); white-space: nowrap; }
+.src.ai { background: var(--berry); border-color: var(--berry); color: #fff; }
+.ainote { font-size: 13px; color: var(--berry-d); background: var(--tint); padding: 8px 12px; border-radius: 8px; }

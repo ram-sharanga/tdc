@@ -15,10 +15,12 @@ const sigOf = (m: MatchResult) =>
   `${m.score}:${m.breakdown.map((b) => b.value).join(",")}`;
 
 // Returns { matchId: aiText } for every match it could explain. Missing ids mean "keep the built-in text".
+export type Explained = { items: Record<string, string>; reason?: string };
+
 export async function explainMatches(
   customer: Customer,
   matches: MatchResult[],
-): Promise<Record<string, string>> {
+): Promise<Explained> {
   const cached = await getCachedExplanations(customer.id);
   const out: Record<string, string> = {};
   const todo: MatchResult[] = [];
@@ -29,7 +31,7 @@ export async function explainMatches(
       out[m.id] = hit.text; // cache hit: free and instant
     else todo.push(m);
   }
-  if (todo.length === 0) return out;
+  if (todo.length === 0) return { items: out };
 
   // ONE call for all missing matches: fewer requests means fewer rate-limit problems.
   const payload = {
@@ -45,14 +47,15 @@ export async function explainMatches(
       highlights: m.fit.map((f) => f.text),
     })),
   };
-  const raw = await chat(
+  const result = await chat(
     [
       { role: "system", content: SYSTEM },
       { role: "user", content: JSON.stringify(payload) },
     ],
     { json: true, maxTokens: 120 * todo.length + 100, temperature: 0.4 },
   );
-  const parsed = extractJson(raw);
+  if (!result.ok) return { items: out, reason: result.reason };
+  const parsed = extractJson(result.text);
 
   const fresh: Record<string, { sig: string; text: string }> = {};
   for (const m of todo) {
@@ -68,5 +71,9 @@ export async function explainMatches(
     }
   }
   if (Object.keys(fresh).length > 0) await saveExplanations(customer.id, fresh);
-  return out;
+  const missed = todo.length - Object.keys(fresh).length;
+  return {
+    items: out,
+    reason: missed > 0 ? `AI reply was unusable for ${missed} match${missed === 1 ? "" : "es"}` : undefined,
+  };
 }

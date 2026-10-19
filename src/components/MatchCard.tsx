@@ -15,12 +15,14 @@ export default function MatchCard({
   onSend,
   why,
   ai,
+  loading,
 }: {
   match: MatchResult;
   sent: boolean;
   onSend: () => void;
   why: string;
-  ai: boolean;
+  ai: boolean; // true when `why` came from the AI
+  loading: boolean; // true while the AI request is in flight
 }) {
   const [open, setOpen] = useState(false);
 
@@ -51,12 +53,14 @@ export default function MatchCard({
         </div>
 
         <div className="why">
-          <b>Why this match.</b> {why}
-          {ai && (
-            <small className="muted" style={{ display: "block", marginTop: 6 }}>
-              Explained by AI from the score breakdown
-            </small>
-          )}
+          <div className="whyhead">
+            <b>Why this match</b>
+            {/* Always shows where the text came from, so the AI is never a guess. */}
+            <span className={`src${ai ? " ai" : ""}`}>
+              {loading ? "Asking AI..." : ai ? "AI explanation" : "Built-in summary"}
+            </span>
+          </div>
+          <p>{why}</p>
         </div>
 
         {open && (

@@ -12,6 +12,7 @@ export type Draft = {
   subject: string;
   body: string;
   source: "ai" | "template";
+  reason?: string; // why we fell back to the template, when we did
 };
 
 export async function generateDraft(
@@ -23,7 +24,7 @@ export async function generateDraft(
   // The placeholder-filled version is both the AI's starting point and the fallback.
   const base = draftEmail(customer, match, template, matchmakerName);
 
-  const raw = await chat(
+  const result = await chat(
     [
       { role: "system", content: SYSTEM }, // our rules; the template can't override them
       {
@@ -47,19 +48,22 @@ export async function generateDraft(
     { json: true, maxTokens: 450, temperature: 0.7 },
   );
 
-  const j = extractJson(raw);
+  if (!result.ok) return { ...base, source: "template", reason: result.reason };
+
+  const j = extractJson(result.text);
   const subject = typeof j?.subject === "string" ? j.subject.trim() : "";
   const body = typeof j?.body === "string" ? j.body.trim() : "";
 
   // Guardrails on the OUTPUT: even if a template tried to hijack the model, a bad result never reaches the screen.
-  const valid =
-    subject.length > 0 &&
-    subject.length <= 200 &&
-    body.length >= 40 &&
-    body.length <= 1500 &&
-    body.includes(match.name.split(" ")[0]) && // must actually introduce the candidate
-    !/https?:\/\//i.test(body); // no links
-  return valid
+  const problems: string[] = [];
+  if (!subject || !body) problems.push("reply was not the expected JSON");
+  else {
+    if (subject.length > 200) problems.push("subject too long");
+    if (body.length < 40 || body.length > 1500) problems.push("body length out of range");
+    if (!body.includes(match.name.split(" ")[0])) problems.push("did not mention the candidate");
+    if (/https?:\/\//i.test(body)) problems.push("contained a link");
+  }
+  return problems.length === 0
     ? { subject, body, source: "ai" }
-    : { ...base, source: "template" };
+    : { ...base, source: "template", reason: `AI reply rejected: ${problems.join(", ")}` };
 }

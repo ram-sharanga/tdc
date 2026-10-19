@@ -1,7 +1,13 @@
 import { getSession } from "@/lib/session";
-import { createTemplate } from "@/lib/repo";
+import { createTemplate, listTemplates } from "@/lib/repo";
 import { TemplateInput } from "@/lib/schemas";
 import { err } from "@/lib/http";
+
+export async function GET() {
+  const session = await getSession();
+  if (!session) return err("Not signed in", 401);
+  return Response.json(await listTemplates(session.matchmakerId));
+}
 
 export async function POST(req: Request) {
   const session = await getSession();
